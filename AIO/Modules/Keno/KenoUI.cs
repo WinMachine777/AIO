@@ -22,7 +22,7 @@ using AIO.Common.Response;
 
 namespace AIO.Modules.Keno
 {
-    public partial class KenoUI : Form
+    public partial class KenoUI : EngineUI
     {
 
 

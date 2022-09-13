@@ -22,7 +22,7 @@ using AIO.Common.Response;
 
 namespace AIO.Modules.Rouletee
 {
-    public partial class RouleteeUI : Form
+    public partial class RouleteeUI : EngineUI
     {
         //private WebSocket chat_socket { get; set; }
         private FastColoredTextBox richTextBox1;

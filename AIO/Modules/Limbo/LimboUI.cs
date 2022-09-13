@@ -23,9 +23,34 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 //using WebSocket4Net;
 
+public partial class EngineUI : Form
+{
+
+    //StartNewGameEngine
+
+    protected delegate void dStartNewGameEngine(string game, string apiKey, string mirror, string currency, string stratFile);
+
+   protected void startNewGameEngine(string game, string apiKey, string mirror, string currency, string stratFile)
+    {
+        this.Invoke((MethodInvoker)delegate ()
+        {
+            this.Close();
+        });
+    }
+
+
+    public void OpenFromScript(string game, string apiKey, string mirror, string currency, string stratFile)
+    {
+
+    }
+
+
+}
+
+
 namespace AIO.Modules.Limbo
 {
-    public partial class LimboUI : Form
+    public partial class LimboUI : EngineUI
     {
 
 
@@ -331,6 +356,10 @@ end";
             lua.RegisterFunction("stop", this, new dStop(luaStop).Method);
             lua.RegisterFunction("resetseed", this, new dResetSeed(luaResetSeed).Method);
             lua.RegisterFunction("resetstats", this, new dResetStat(luaResetStat).Method);
+
+
+            lua.RegisterFunction("startNewGameEngine", this, new dStartNewGameEngine(startNewGameEngine).Method);
+
         }
 
         private void SetLuaVariables(decimal profitCurr)
@@ -1574,7 +1603,7 @@ end";
         private void ServerSeedBox_TextChanged(object sender, EventArgs e)
         {
             serverSeed = ServerSeedBox.Text;
-           // Properties.Settings.Default.serverSeed = serverSeed;
+            // Properties.Settings.Default.serverSeed = serverSeed;
         }
 
         private void ClientSeedBox_TextChanged(object sender, EventArgs e)

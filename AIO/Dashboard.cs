@@ -42,5 +42,50 @@ namespace AIO
         {
 
         }
+
+
+
+        public void GameEngineGateway(string game, string apiKey, string mirror, string currency, string stratFile)
+        {
+
+            game = game.ToLower();
+
+            string[] games = { "dice", "keno", "limbo", "rouletee" };
+
+            if (games.Contains(game))
+            {
+                switch (game)
+                {
+                    case "DICE":
+
+                    break;
+
+                    case "KENO":
+
+                        break;
+
+                    case "LIMBO":
+
+                        break;
+                    case "ROULETEE":
+
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+
+            /*
+            switch (switch_on)
+            {
+                default:
+            }*/
+        }
+
     }
 }
