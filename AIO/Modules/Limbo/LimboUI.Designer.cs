@@ -95,6 +95,7 @@
             this.ServerSeedBox = new System.Windows.Forms.TextBox();
             this.SimulateButton = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -356,6 +357,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.button2);
             this.tabPage2.Controls.Add(this.btnLoginLogout);
             this.tabPage2.Controls.Add(this.btnCheckBalance);
             this.tabPage2.Controls.Add(this.label14);
@@ -405,19 +407,6 @@
             // 
             this.mirrorSiteSelector.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.mirrorSiteSelector.FormattingEnabled = true;
-            this.mirrorSiteSelector.Items.AddRange(new object[] {
-            "Stake.com",
-            "Stake.bet",
-            "Stake.games",
-            "Staketr.com",
-            "Staketr2.com",
-            "Staketr3.com",
-            "Staketr4.com",
-            "Staketr5.com",
-            "Stake.bz",
-            "Stake.jp",
-            "Stake.ac",
-            "Stake.icu"});
             this.mirrorSiteSelector.Location = new System.Drawing.Point(73, 34);
             this.mirrorSiteSelector.Name = "mirrorSiteSelector";
             this.mirrorSiteSelector.Size = new System.Drawing.Size(216, 21);
@@ -828,7 +817,17 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // Form1
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(184, 84);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(186, 21);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "Cross Strategie test";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // LimboUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -845,7 +844,7 @@
             this.Controls.Add(this.tabControl1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "LimboUI";
             this.Text = "Limbo";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.statusStrip1.ResumeLayout(false);
@@ -935,6 +934,7 @@
         private System.Windows.Forms.TextBox NonceStopBox;
         private System.Windows.Forms.LinkLabel ResetBoxSeed;
         private System.Windows.Forms.Button btnLoginLogout;
+        private System.Windows.Forms.Button button2;
     }
 }
 

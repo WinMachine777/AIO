@@ -15,17 +15,67 @@ using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-//using WebSocket4Net;
-
 using AIO.Common;
 using AIO.Common.Response;
+using System.Net;
+using AIO.Common.Request;
 
-namespace AIO.Modules.Rouletee
+namespace AIO.Modules.Roulette
 {
-    public partial class RouleteeUI : EngineUI
+    public partial class RouletteUI : Form, ICrossStrategy
     {
+
+        //public CookieContainer cc;
+        //RestClient SharedRestClient;
+
+        APIClientManager APIClientManager;
+
+        #region CROSS STRATEGY
+
+        protected delegate void dStartNewGameEngine(string game, string currency, string stratFile);
+
+        public void startNewGameEngine(string game, string currency, string stratFile)
+        {
+            this.Invoke((MethodInvoker)delegate ()
+            {
+                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, StakeSite, currency, stratFile);
+                //this.Close();
+            });
+        }
+
+
+        public RouletteUI(object source, string game, string apiKey, string mirror, string currency, string stratFile) : this()
+        {
+            InitializeComponent();
+            this.Show(source as Form);
+
+        }
+
+
+
+
+
+        public string ReadScriptBox()
+        {
+            return luaCodeBox.Text;
+        }
+
+        public void WriteScriptBox(string scriptText)
+        {
+            luaCodeBox.Text = scriptText;
+        }
+
+        #endregion
+
+
+
+
+
+
+
+
         //private WebSocket chat_socket { get; set; }
-        private FastColoredTextBox richTextBox1;
+        private FastColoredTextBox luaCodeBox;
 
         LuaInterface lua = LuaRuntime.GetLua();
         delegate void LogConsole(string text);
@@ -132,11 +182,22 @@ namespace AIO.Modules.Rouletee
         public List<Values> range = new List<Values> { };
         public List<Values> row = new List<Values> { };
 
-        public string[] curr = { "BTC", "ETH", "LTC", "DOGE", "XRP", "BCH", "TRX", "EOS" };
+        public string[] currenciesAvailable = CommonData.CurrenciesAvailable; //{ "BTC", "ETH", "LTC", "DOGE", "XRP", "BCH", "TRX", "EOS" };
+
+
         private bool is_connected = false;
-        public RouleteeUI()
+
+        public RouletteUI()
         {
+
+            authorizeControl1 = new AuthorizeControl();
+
+
             InitializeComponent();
+
+            //CommonData.FillCurrencies(comboBox1);
+            //CommonData.FillMirrors(SiteComboBox2);
+
 
             Application.ApplicationExit += new EventHandler(Application_ApplicationExit);
 
@@ -151,7 +212,7 @@ namespace AIO.Modules.Rouletee
             listBox3.BackColor = Color.FromArgb(249, 249, 249);
             //listView1.Hide();
 
-            Text += " - " + Application.ProductVersion;
+            Text += " - AIO " + Application.ProductVersion;
             Icon = Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
             listView1.SetDoubleBuffered(true);
@@ -159,18 +220,66 @@ namespace AIO.Modules.Rouletee
             //RegisterLua();
             EnableTab(tabPage5, false);
             richTextBox3.BackColor = Color.White;
-            richTextBox1 = new FastColoredTextBox();
-            richTextBox1.Dock = DockStyle.Fill;
-            richTextBox1.Language = Language.Lua;
-            richTextBox1.BorderStyle = BorderStyle.None;
-            richTextBox1.BackColor = Color.FromArgb(249, 249, 249);
-            tabPageLua.Controls.Add(richTextBox1);
+            luaCodeBox = new FastColoredTextBox();
+            luaCodeBox.Dock = DockStyle.Fill;
+            luaCodeBox.Language = Language.Lua;
+            luaCodeBox.BorderStyle = BorderStyle.None;
+            luaCodeBox.BackColor = Color.FromArgb(249, 249, 249);
+            tabPageLua.Controls.Add(luaCodeBox);
 
-            richTextBox1.TextChanged += this.richTextBox1_TextChanged;
+            luaCodeBox.TextChanged += this.richTextBox1_TextChanged;
 
             //richTextBox1.Text = Properties.Settings.Default.textCode;
 
+            APIClientManager = new APIClientManager();
+
         }
+
+
+        ///// <summary>
+        ///// CreateOrUseDefaultRestClient
+        ///// </summary>
+        ///// <param name="dispose"></param>
+        //private void CreateOrUseDefaultRestClient(bool dispose = false)
+        //{
+        //    if (dispose == true)
+        //    {
+        //        SharedRestClient = null;
+        //        cc = null;
+        //    }
+
+        //    if (SharedRestClient != null)
+        //    {
+        //        return;
+        //    }
+
+        //    var mainurl = "https://api." + StakeSite + "/graphql";
+
+        //    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+        //    this.cc = new CookieContainer();
+
+        //    SharedRestClient = new RestClient();
+        //    SharedRestClient.BaseUrl = new Uri(mainurl);
+        //    SharedRestClient.CookieContainer = this.cc;
+        //    SharedRestClient.UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36";
+        //}
+
+        ///// <summary>
+        ///// CreateDefaultRestRequest
+        ///// </summary>
+        ///// <param name="apiKey"></param>
+        ///// <returns></returns>
+        //private RestRequest CreateDefaultRestRequest(string apiKey)
+        //{
+        //    RestRequest restRequest = new RestRequest(Method.POST);
+        //    restRequest.AddHeader("authorization", string.Format("Bearer {0}", apiKey));
+        //    restRequest.AddHeader("x-access-token", apiKey);
+        //    restRequest.AddHeader("Content-type", "application/json");
+        //    return restRequest;
+        //}
+
+
         public static void EnableTab(TabPage page, bool enable)
         {
             foreach (Control ctl in page.Controls) ctl.Enabled = enable;
@@ -211,6 +320,9 @@ namespace AIO.Modules.Rouletee
             lua.RegisterFunction("resetseed", this, new dResetSeed(luaResetSeed).Method);
             lua.RegisterFunction("resetstats", this, new dResetStat(luaResetStat).Method);
             //lua.RegisterFunction("resetchips", this, new dResetChip(luaResetChip).Method);
+
+            lua.RegisterFunction("startNewGameEngine", this, new dStartNewGameEngine(startNewGameEngine).Method);
+
         }
 
         private void SetLuaVariables(decimal profitCurr)
@@ -334,7 +446,10 @@ namespace AIO.Modules.Rouletee
         {
             running = false;
             button1.Enabled = true;
-            comboBox1.Enabled = true;
+            //comboBox1.Enabled = true;
+
+            authorizeControl1.CanChangeCurrency(true);
+
             button1.Text = "Start";
         }
 
@@ -460,37 +575,37 @@ namespace AIO.Modules.Rouletee
 
         }
 
-        private async void textBox1_TextChanged(object sender, EventArgs e)
-        {
-            token = textBox1.Text;
-            //Properties.Settings.Default.token = token;
-            if (token.Length == 96)
-            {
-               // Connect();
-                await Authorize();
+        //private async void textBox1_TextChanged(object sender, EventArgs e)
+        //{
+        //    token = textBox1.Text;
+        //    //Properties.Settings.Default.token = token;
+        //    if (token.Length == 96)
+        //    {
+        //        // Connect();
+        //        await Authorize();
 
-            }
-            else
-            {
-                toolStripStatusLabel1.Text = "Disconnected";
-            }
-        }
+        //    }
+        //    else
+        //    {
+        //        toolStripStatusLabel1.Text = "Disconnected";
+        //    }
+        //}
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            currencySelected = curr[comboBox1.SelectedIndex].ToLower();
-           // Properties.Settings.Default.indexCurrency = comboBox1.SelectedIndex;
-            string[] current = comboBox1.Text.Split(' ');
-            if (current.Length > 1)
-            {
-                balanceLabel.Text = current[1] + " " + currencySelected;
-            }
+            //currencySelected = currenciesAvailable[comboBox1.SelectedIndex].ToLower();
+            //// Properties.Settings.Default.indexCurrency = comboBox1.SelectedIndex;
+            //string[] current = comboBox1.Text.Split(' ');
+            //if (current.Length > 1)
+            //{
+            //    balanceLabel.Text = current[1] + " " + currencySelected;
+            //}
         }
 
         private void SiteComboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            StakeSite = SiteComboBox2.Text.ToLower();
-           // Properties.Settings.Default.indexSite = SiteComboBox2.SelectedIndex;
+            //StakeSite = SiteComboBox2.Text.ToLower();
+            // Properties.Settings.Default.indexSite = SiteComboBox2.SelectedIndex;
         }
 
         private async void button1_Click(object sender, EventArgs e)
@@ -506,11 +621,7 @@ namespace AIO.Modules.Rouletee
                     UnSetVariables();
                     SetLuaVariables(0);
                     LuaRuntime.SetLua(lua);
-
-
-                    LuaRuntime.Run(richTextBox1.Text);
-
-
+                    LuaRuntime.Run(luaCodeBox.Text);
                 }
                 catch (Exception ex)
                 {
@@ -519,15 +630,18 @@ namespace AIO.Modules.Rouletee
                     running = false;
                     bSta();
                 }
+
                 GetLuaVariables();
 
-                comboBox1.SelectedIndex = Array.FindIndex(curr, row => row == currencySelected.ToUpper());
+                authorizeControl1.ChangeCurrency(currencySelected);
+
                 if (ready == true)
                 {
                     button1.Enabled = false;
                     running = true;
                     button1.Text = "Stop";
-                    comboBox1.Enabled = false;
+                    //comboBox1.Enabled = false;
+                    authorizeControl1.CanChangeCurrency(false);
                     beginMs = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
                     StartBet();
                 }
@@ -555,6 +669,7 @@ namespace AIO.Modules.Rouletee
                 await RouletteBet();
             }
         }
+
         /*
         private async Task Balances()
         {
@@ -732,41 +847,42 @@ namespace AIO.Modules.Rouletee
         }
         */
 
-        async Task RouletteBet()
+
+
+        private void RefreshBalances(List<Balances> balances)
+        {
+            try
+            {
+                for (var i = 0; i < balances.Count; i++)
+                {
+                    if (balances[i].available.currency == currencySelected.ToLower())
+                    {
+                        currentBal = balances[i].available.amount;
+                        balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
+                    }
+                    //  var index = Array.FindIndex(currenciesAvailable, row => row.Contains(balances[i].available.currency.ToLower()));
+                    //  if (index != -1)
+                    //  {
+                    //       currencySelector.Items[index] = string.Format("{0} {1}", currenciesAvailable[index], balances[i].available.amount.ToString("0.00000000"));
+                    //   }
+                }
+
+            }
+            catch (Exception)
+            {
+            }
+        }
+        public async Task RouletteBet()
         {
             try
             {
                 if (running)
                 {
-                    var mainurl = "https://api." + StakeSite + "/graphql";
-                    var request = new RestRequest(Method.POST);
-                    var client = new RestClient(mainurl);
-                    BetQuery payload = new BetQuery();
-                    payload.variables = new BetClass()
-                    {
-                        //numbers = number.Count > 0 ? number : new List<Values> { },
-                        //rows = row.Count > 0 ? row : new List<Values> { },
-                        //colors = color.Count > 0 ? color : new List<Values> { },
-                        //parities = parity.Count > 0 ? parity : new List<Values> { },
-                        //ranges = range.Count > 0 ? range : new List<Values> { },
-                        currency = currencySelected,
-                        identifier = RandomString(21)
 
-                    };
-
-                    payload.query = "mutation RouletteBet($currency: CurrencyEnum!, $colors: [RouletteBetColorsInput!], $numbers: [RouletteBetNumbersInput!], $parities: [RouletteBetParitiesInput!], $ranges: [RouletteBetRangesInput!], $rows: [RouletteBetRowsInput!], $identifier: String!) {\n  rouletteBet(\n    currency: $currency\n    colors: $colors\n    numbers: $numbers\n    parities: $parities\n    ranges: $ranges\n    rows: $rows\n    identifier: $identifier\n  ) {\n    ...CasinoBet\n    state {\n      ...RouletteStateFragment\n    }\n  }\n}\n\nfragment CasinoBet on CasinoBet {\n  id\n  active\n  payoutMultiplier\n  amountMultiplier\n  amount\n  payout\n  updatedAt\n  currency\n  game\n  user {\n    id\n    name\n  }\n}\n\nfragment RouletteStateFragment on CasinoGameRoulette {\n  result\n  colors {\n    amount\n    value\n  }\n  numbers {\n    amount\n    value\n  }\n  parities {\n    amount\n    value\n  }\n  ranges {\n    amount\n    value\n  }\n  rows {\n    amount\n    value\n  }\n}\n";
-
-                    request.AddHeader("Content-Type", "application/json");
-                    request.AddHeader("x-access-token", token);
-
-                    request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
-
-
-                    var restResponse =
-                        await client.ExecuteAsync(request);
-
+                    var restResponse = await APIClientManager.PlaceRouletteBet(currencySelected);
 
                     button1.Enabled = true;
+
                     Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
 
                     if (response.errors != null)
@@ -907,27 +1023,11 @@ namespace AIO.Modules.Rouletee
         {
             try
             {
-                var mainurl = "https://api." + StakeSite + "/graphql";
-                var request = new RestRequest(Method.POST);
-                var client = new RestClient(mainurl);
-                BetQuery payload = new BetQuery();
-                payload.operationName = "UserBalances";
-                payload.query = "query UserBalances {\n  user {\n    id\n    balances {\n      available {\n        amount\n        currency\n        __typename\n      }\n      vault {\n        amount\n        currency\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n";
 
-                request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("x-access-token", token);
-
-                request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
-
-
-
-                var restResponse =
-                    await client.ExecuteAsync(request);
-
+                var restResponse = await APIClientManager.CheckBalance();
 
                 //Debug.WriteLine(restResponse.Content);
                 BalancesData response = JsonConvert.DeserializeObject<BalancesData>(restResponse.Content);
-
 
                 if (response.errors != null)
                 {
@@ -945,18 +1045,18 @@ namespace AIO.Modules.Rouletee
                                 currentBal = response.data.user.balances[i].available.amount;
                                 balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
                             }
-                            if (true)
-                            {
-                                for (int s = 0; s < curr.Length; s++)
-                                {
-                                    if (response.data.user.balances[i].available.currency == curr[s].ToLower())
-                                    {
-                                        comboBox1.Items[s] = string.Format("{0} {1}", curr[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
+                            //if (true)
+                            //{
+                            //    for (int s = 0; s < currenciesAvailable.Length; s++)
+                            //    {
+                            //        if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
+                            //        {
+                            //            comboBox1.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
 
-                                        break;
-                                    }
-                                }
-                            }
+                            //            break;
+                            //        }
+                            //    }
+                            //}
                         }
                     }
                 }
@@ -967,6 +1067,11 @@ namespace AIO.Modules.Rouletee
             }
 
         }
+
+
+
+
+
         public void TimerFunc(long begin)
         {
             decimal diff = (decimal)((DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - begin);
@@ -976,20 +1081,20 @@ namespace AIO.Modules.Rouletee
 
             Time.Text = String.Format("{0} : {1} : {2}", hours, minutes, seconds);
         }
-        private void clearLinkbtn_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            textBox1.Clear();
-            textBox1.Enabled = true;
-            token = "";
-            toolStripStatusLabel1.Text = "Disconnected";
-        }
+        //private void clearLinkbtn_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        //{
+        //    textBox1.Clear();
+        //    textBox1.Enabled = true;
+        //    token = "";
+        //    toolStripStatusLabel1.Text = "Disconnected";
+        //}
 
-        private async void CheckBtn_Click(object sender, EventArgs e)
-        {
-            CheckBtn.Enabled = false;
-            await CheckBalance();
-            CheckBtn.Enabled = true;
-        }
+        //private async void CheckBtn_Click(object sender, EventArgs e)
+        //{
+        //    CheckBtn.Enabled = false;
+        //    await CheckBalance();
+        //    CheckBtn.Enabled = true;
+        //}
 
         public string RandomString(int length)
         {
@@ -1084,30 +1189,15 @@ namespace AIO.Modules.Rouletee
                 CommandButton2_Click(this, new EventArgs());
             }
         }
+
+
+
         private async Task VaultSend(decimal sentamount)
         {
             try
             {
-                var mainurl = "https://api." + StakeSite + "/graphql";
-                var request = new RestRequest(Method.POST);
-                var client = new RestClient(mainurl);
-                BetQuery payload = new BetQuery();
-                payload.operationName = "CreateVaultDeposit";
-                payload.variables = new BetClass()
-                {
-                    currency = currencySelected.ToLower(),
-                    amount = sentamount
-                };
-                payload.query = "mutation CreateVaultDeposit($currency: CurrencyEnum!, $amount: Float!) {\n  createVaultDeposit(currency: $currency, amount: $amount) {\n    id\n    amount\n    currency\n    user {\n      id\n      balances {\n        available {\n          amount\n          currency\n          __typename\n        }\n        vault {\n          amount\n          currency\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n";
-                request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("x-access-token", token);
 
-                request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
-                //request.AddJsonBody(payload);
-                //IRestResponse response = client.Execute(request);
-
-                var restResponse =
-                    await client.ExecuteAsync(request);
+                var restResponse = await APIClientManager.SendToVault(currencySelected, sentamount);
 
                 // Will output the HTML contents of the requested page
                 //Debug.WriteLine(restResponse.Content);
@@ -1136,29 +1226,13 @@ namespace AIO.Modules.Rouletee
         {
             try
             {
-                var mainurl = "https://api." + StakeSite + "/graphql";
-                var request = new RestRequest(Method.POST);
-                var client = new RestClient(mainurl);
-                BetQuery payload = new BetQuery();
-                payload.operationName = "RotateSeedPair";
-                payload.variables = new BetClass()
-                {
-                    seed = RandomString(10)
-                };
-                payload.query = "mutation RotateSeedPair($seed: String!) {\n  rotateSeedPair(seed: $seed) {\n    clientSeed {\n      user {\n        id\n        activeClientSeed {\n          id\n          seed\n          __typename\n        }\n        activeServerSeed {\n          id\n          nonce\n          seedHash\n          nextSeedHash\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n";
-                request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("x-access-token", token);
 
-                request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
-                //request.AddJsonBody(payload);
-                //IRestResponse response = client.Execute(request);
-
-                var restResponse =
-                    await client.ExecuteAsync(request);
+                var restResponse = await APIClientManager.ResetSeeds();
 
                 // Will output the HTML contents of the requested page
                 //Debug.WriteLine(restResponse.Content);
                 Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
+
                 //System.Diagnostics.Debug.WriteLine(restResponse.Content);
                 if (response.errors != null)
                 {
@@ -1184,29 +1258,13 @@ namespace AIO.Modules.Rouletee
         {
             try
             {
-                var mainurl = "https://api." + StakeSite + "/graphql";
-                var request = new RestRequest(Method.POST);
-                var client = new RestClient(mainurl);
-                BetQuery payload = new BetQuery();
-                payload.operationName = "RotateSeedPair";
-                payload.variables = new BetClass()
-                {
-                    seed = RandomString(10)
-                };
-                payload.query = "mutation RotateSeedPair($seed: String!) {\n  rotateSeedPair(seed: $seed) {\n    clientSeed {\n      user {\n        id\n        activeClientSeed {\n          id\n          seed\n          __typename\n        }\n        activeServerSeed {\n          id\n          nonce\n          seedHash\n          nextSeedHash\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n";
-                request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("x-access-token", token);
 
-                request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
-                //request.AddJsonBody(payload);
-                //IRestResponse response = client.Execute(request);
-
-                var restResponse =
-                    await client.ExecuteAsync(request);
+                var restResponse = await APIClientManager.SendTip();
 
                 // Will output the HTML contents of the requested page
                 //Debug.WriteLine(restResponse.Content);
                 Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
+
                 //System.Diagnostics.Debug.WriteLine(restResponse.Content);
                 if (response.errors != null)
                 {
@@ -1232,26 +1290,13 @@ namespace AIO.Modules.Rouletee
         {
             try
             {
-                var mainurl = "https://api." + StakeSite + "/graphql";
-                var request = new RestRequest(Method.POST);
-                var client = new RestClient(mainurl);
-                BetQuery payload = new BetQuery();
-                payload.operationName = "initialUserRequest";
-                payload.variables = new BetClass() { };
-                payload.query = "query initialUserRequest {\n  user {\n    ...UserAuth\n    __typename\n  }\n}\n\nfragment UserAuth on User {\n  id\n  name\n  email\n  hasPhoneNumberVerified\n  hasEmailVerified\n  hasPassword\n  intercomHash\n  createdAt\n  hasTfaEnabled\n  mixpanelId\n  hasOauth\n  isKycBasicRequired\n  isKycExtendedRequired\n  isKycFullRequired\n  kycBasic {\n    id\n    status\n    __typename\n  }\n  kycExtended {\n    id\n    status\n    __typename\n  }\n  kycFull {\n    id\n    status\n    __typename\n  }\n  flags {\n    flag\n    __typename\n  }\n  roles {\n    name\n    __typename\n  }\n  balances {\n    ...UserBalanceFragment\n    __typename\n  }\n  activeClientSeed {\n    id\n    seed\n    __typename\n  }\n  previousServerSeed {\n    id\n    seed\n    __typename\n  }\n  activeServerSeed {\n    id\n    seedHash\n    nextSeedHash\n    nonce\n    blocked\n    __typename\n  }\n  __typename\n}\n\nfragment UserBalanceFragment on UserBalance {\n  available {\n    amount\n    currency\n    __typename\n  }\n  vault {\n    amount\n    currency\n    __typename\n  }\n  __typename\n}\n";
-                request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("x-access-token", token);
 
-                request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
-                //request.AddJsonBody(payload);
-                //IRestResponse response = client.Execute(request);
-
-                var restResponse =
-                    await client.ExecuteAsync(request);
+                var restResponse = await APIClientManager.Authorize();
 
                 // Will output the HTML contents of the requested page
                 //Debug.WriteLine(restResponse.Content);
                 ActiveData response = JsonConvert.DeserializeObject<ActiveData>(restResponse.Content);
+
                 //System.Diagnostics.Debug.WriteLine(restResponse.Content);
                 if (response.errors != null)
                 {
@@ -1262,29 +1307,36 @@ namespace AIO.Modules.Rouletee
                     if (response.data != null)
                     {
                         toolStripStatusLabel1.Text = String.Format("Connected");
-                        textBox1.Enabled = false;
+
+                        //textBox1.Enabled = false;
+                        authorizeControl1.CanChangeAuthorization(false);
+
                         for (var i = 0; i < response.data.user.balances.Count; i++)
                         {
                             if (response.data.user.balances[i].available.currency == currencySelected.ToLower())
                             {
                                 currentBal = response.data.user.balances[i].available.amount;
                                 balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
+                            }
 
-                            }
                             //currencySelect.Items.Clear();
-                            if (true)
-                            {
-                                for (int s = 0; s < curr.Length; s++)
-                                {
-                                    if (response.data.user.balances[i].available.currency == curr[s].ToLower())
-                                    {
-                                        comboBox1.Items[s] = string.Format("{0} {1}", curr[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
-                                        //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
-                                        break;
-                                    }
-                                }
-                            }
+                            //if (true)
+                            //{
+                            //    //authorizeControl1.SyncCurrencies(response.data.user.balances);
+                            //    for (int s = 0; s < currenciesAvailable.Length; s++)
+                            //    {
+                            //        if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
+                            //        {
+                            //            comboBox1.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
+                            //            //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
+                            //            break;
+                            //        }
+                            //    }
+                            //}
                         }
+
+                        authorizeControl1.SyncCurrencies(response.data.user.balances);
+
 
                     }
 
@@ -1515,7 +1567,7 @@ namespace AIO.Modules.Rouletee
                     LuaRuntime.SetLua(lua);
 
 
-                    LuaRuntime.Run(richTextBox1.Text);
+                    LuaRuntime.Run(luaCodeBox.Text);
 
 
                 }
@@ -1557,7 +1609,7 @@ namespace AIO.Modules.Rouletee
         private void NonceStopBox_TextChanged(object sender, EventArgs e)
         {
             stopNonce = Int32.Parse(NonceStopBox.Text);
-           // Properties.Settings.Default.nonceStop = stopNonce;
+            // Properties.Settings.Default.nonceStop = stopNonce;
         }
         private void listBox3_Click(object sender, EventArgs e)
         {
@@ -1612,6 +1664,11 @@ namespace AIO.Modules.Rouletee
         private void ResultLabeL_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            startNewGameEngine("LIMBO", "bnb", "strategies/strat_limbolua");
         }
     }
 

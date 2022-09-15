@@ -123,6 +123,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Common\AuthorizeControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Common\AuthorizeControl.Designer.cs">
+      <DependentUpon>AuthorizeControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Common\CommonData.cs" />
     <Compile Include="Common\GraphQLQueries.cs" />
     <Compile Include="Common\schema.cs" />
     <Compile Include="Dashboard.cs">
@@ -138,6 +145,9 @@
     <Compile Include="Modules\Keno\KenoUI.Designer.cs">
       <DependentUpon>KenoUI.cs</DependentUpon>
     </Compile>
+    <Compile Include="Modules\Keno\stratGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Modules\Limbo\limboBet.cs" />
     <Compile Include="Modules\Limbo\schema.cs" />
     <Compile Include="Modules\Limbo\LimboUI.cs">
@@ -146,16 +156,21 @@
     <Compile Include="Modules\Limbo\LimboUI.Designer.cs">
       <DependentUpon>LimboUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="Modules\Rouletee\RouleteeUI.cs">
+    <Compile Include="Common\XFormUI.cs" />
+    <Compile Include="Common\ICrossStrategy.cs" />
+    <Compile Include="Modules\Rouletee\RouletteUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Modules\Rouletee\RouleteeUI.Designer.cs">
-      <DependentUpon>RouleteeUI.cs</DependentUpon>
+    <Compile Include="Modules\Rouletee\RouletteUI.Designer.cs">
+      <DependentUpon>RouletteUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Modules\Rouletee\rouletteBet.cs" />
     <Compile Include="Modules\Rouletee\shema.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Common\AuthorizeControl.resx">
+      <DependentUpon>AuthorizeControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dashboard.resx">
       <DependentUpon>Dashboard.cs</DependentUpon>
     </EmbeddedResource>
@@ -166,8 +181,8 @@
     <EmbeddedResource Include="Modules\Limbo\LimboUI.resx">
       <DependentUpon>LimboUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Modules\Rouletee\RouleteeUI.resx">
-      <DependentUpon>RouleteeUI.cs</DependentUpon>
+    <EmbeddedResource Include="Modules\Rouletee\RouletteUI.resx">
+      <DependentUpon>RouletteUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

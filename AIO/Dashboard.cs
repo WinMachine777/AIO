@@ -1,6 +1,6 @@
 ﻿using AIO.Modules.Keno;
 using AIO.Modules.Limbo;
-using AIO.Modules.Rouletee;
+using AIO.Modules.Roulette;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,19 +23,19 @@ namespace AIO
         private void button1_Click(object sender, EventArgs e)
         {
             var w = new LimboUI();
-            w.Show();
+            w.Show(this);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             var w = new KenoUI();
-            w.Show();
+            w.Show(this);
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            var w = new RouleteeUI();
-            w.Show();
+            var w = new RouletteUI();
+            w.Show(this);
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -45,35 +45,38 @@ namespace AIO
 
 
 
-        public void GameEngineGateway(string game, string apiKey, string mirror, string currency, string stratFile)
+        public void OpenNewGameEngine(object sender, string game, string apiKey, string mirror, string currency, string stratFile)
         {
 
             game = game.ToLower();
 
-            string[] games = { "dice", "keno", "limbo", "rouletee" };
+            string[] games = { "dice", "keno", "limbo", "roulette" };
 
             if (games.Contains(game))
             {
-                switch (game)
+                switch (game.ToUpperInvariant())
                 {
                     case "DICE":
-
-                    break;
+                        //var dice = new KenoUI();
+                        //dice.Show(this);
+                        break;
 
                     case "KENO":
-
+                        new KenoUI(this, game, apiKey, mirror, currency, stratFile);
                         break;
 
                     case "LIMBO":
-
+                        new LimboUI(this, game, apiKey, mirror, currency, stratFile);
                         break;
-                    case "ROULETEE":
-
+                    case "ROULETTE":
+                        new RouletteUI(this, game, apiKey, mirror, currency, stratFile);
                         break;
 
                     default:
                         break;
                 }
+
+                (sender as Form).Close();
             }
             else
             {

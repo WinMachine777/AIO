@@ -21,45 +21,63 @@ using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-//using WebSocket4Net;
-
-public partial class EngineUI : Form
-{
-
-    //StartNewGameEngine
-
-    protected delegate void dStartNewGameEngine(string game, string apiKey, string mirror, string currency, string stratFile);
-
-   protected void startNewGameEngine(string game, string apiKey, string mirror, string currency, string stratFile)
-    {
-        this.Invoke((MethodInvoker)delegate ()
-        {
-            this.Close();
-        });
-    }
-
-
-    public void OpenFromScript(string game, string apiKey, string mirror, string currency, string stratFile)
-    {
-
-    }
-
-
-}
 
 
 namespace AIO.Modules.Limbo
 {
-    public partial class LimboUI : EngineUI
+    public partial class LimboUI : Form, ICrossStrategy
     {
 
+
+
+        #region CROSS STRATEGY
+
+        public delegate void dStartNewGameEngine(string game, string currency, string stratFile);
+
+        public void startNewGameEngine(string game, string currency, string stratFile)
+        {
+            this.Invoke((MethodInvoker)delegate ()
+            {
+                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, StakeSite, currency, stratFile);
+                //this.Close();
+            });
+        }
+
+
+        public LimboUI(object source, string game, string apiKey, string mirror, string currency, string stratFile) : this()
+        {
+            InitializeComponent();
+            this.Show(source as Form);
+
+            if (game == null || apiKey == null || mirror == null || currency == null || stratFile == null)
+            {
+                return;
+            }
+
+
+
+
+        }
+
+        public string ReadScriptBox()
+        {
+            return luaCodeBox.Text;
+        }
+
+        public void WriteScriptBox(string scriptText)
+        {
+            luaCodeBox.Text = scriptText;
+        }
+
+
+        #endregion
 
         public CookieContainer cc;
         RestClient SharedRestClient;
 
 
         //private WebSocket chat_socket { get; set; }
-        private FastColoredTextBox richTextBox1;
+        private FastColoredTextBox luaCodeBox;
 
         LuaInterface lua = LuaRuntime.GetLua();
         delegate void LogConsole(string text);
@@ -173,19 +191,6 @@ namespace AIO.Modules.Limbo
 
         private bool is_connected = false;
 
-        private void fillCurrencies()
-        {
-            // fill currency combobox
-
-            currencySelector.Items.Clear();
-
-            foreach (var item in currenciesAvailable)
-            {
-                currencySelector.Items.Add(item);
-            }
-
-        }
-
         public LimboUI()
         {
             InitializeComponent();
@@ -193,7 +198,8 @@ namespace AIO.Modules.Limbo
             Application.ApplicationExit += new EventHandler(Application_ApplicationExit);
 
 
-            fillCurrencies();
+            CommonData.FillCurrencies(currencySelector);
+            CommonData.FillMirrors(mirrorSiteSelector);
 
             this.listView1.ItemChecked += this.listView1_ItemChecked;
             this.CommandBox2.KeyDown += this.CmdBox_KeyDown;
@@ -250,19 +256,19 @@ namespace AIO.Modules.Limbo
 
             //RegisterLua();
 
-            richTextBox1 = new FastColoredTextBox();
-            richTextBox1.Dock = DockStyle.Fill;
-            richTextBox1.Language = Language.Lua;
-            richTextBox1.BorderStyle = BorderStyle.None;
-            richTextBox1.BackColor = Color.FromArgb(249, 249, 249);
-            tabPageLua.Controls.Add(richTextBox1);
+            luaCodeBox = new FastColoredTextBox();
+            luaCodeBox.Dock = DockStyle.Fill;
+            luaCodeBox.Language = Language.Lua;
+            luaCodeBox.BorderStyle = BorderStyle.None;
+            luaCodeBox.BackColor = Color.FromArgb(249, 249, 249);
+            tabPageLua.Controls.Add(luaCodeBox);
 
 
-            richTextBox1.TextChanged += this.richTextBox1_TextChanged;
+            luaCodeBox.TextChanged += this.richTextBox1_TextChanged;
 
             //richTextBox1.Text = Properties.Settings.Default.textCode;
 
-            richTextBox1.Text = @"nextbet  = 0.00000000 --sets your first bet.
+            luaCodeBox.Text = @"nextbet  = 0.00000000 --sets your first bet.
 target = 2 -- set target
 
 function dobet()
@@ -270,6 +276,11 @@ function dobet()
         print(lastBet.result) 
     end
 end";
+
+        }
+
+        public LimboUI(Form parent)
+        {
 
         }
 
@@ -575,7 +586,7 @@ end";
                     LuaRuntime.SetLua(lua);
 
 
-                    LuaRuntime.Run(richTextBox1.Text);
+                    LuaRuntime.Run(luaCodeBox.Text);
 
 
                 }
@@ -1653,7 +1664,7 @@ end";
                     LuaRuntime.SetLua(lua);
 
 
-                    LuaRuntime.Run(richTextBox1.Text);
+                    LuaRuntime.Run(luaCodeBox.Text);
 
 
                 }
@@ -1778,7 +1789,10 @@ end";
 
         }
 
-
+        private void button2_Click(object sender, EventArgs e)
+        {
+            startNewGameEngine("KENO", "bnb", "strategies/strat_keno.lua");
+        }
     }
     public class lastbet
     {

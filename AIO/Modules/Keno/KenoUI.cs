@@ -22,8 +22,70 @@ using AIO.Common.Response;
 
 namespace AIO.Modules.Keno
 {
-    public partial class KenoUI : EngineUI
+    public partial class KenoUI : Form, ICrossStrategy
     {
+
+        #region CONNECTOR NEW
+
+
+        #endregion
+
+
+        #region CROSS STRATEGY
+
+        public delegate void dStartNewGameEngine(string game, string currency, string stratFile);
+
+        public void startNewGameEngine(string game, string currency, string stratFile)
+        {
+            this.Invoke((MethodInvoker)delegate ()
+            {
+                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, StakeSite, currency, stratFile);
+                //this.Close();
+            });
+        }
+
+
+        public KenoUI(object source, string game, string apiKey, string mirror, string currency, string stratFile) : this()
+        {
+            //InitializeComponent();
+            this.Show(source as Form);
+
+            var strat = XFormUI.GetCrossStrategyLuaFile(stratFile);
+
+            if (!string.IsNullOrEmpty(strat))
+            {
+                WriteScriptBox(strat);
+            }
+
+
+            textBox1.Text = apiKey;
+            //siteStake.SelectedValue = siteStake.Items.IndexOf();
+            siteStake.SelectedValue = mirror;
+
+            StakeSite = siteStake.Text.ToLower();
+            textBox1_TextChanged(null, null);
+
+            // Authorize().Wait();
+
+            startStopScript_Click(null, null);
+
+
+        }
+
+
+        public string ReadScriptBox()
+        {
+            return luaCodeBox.Text;
+        }
+
+        public void WriteScriptBox(string scriptText)
+        {
+            luaCodeBox.Text = scriptText;
+        }
+
+        #endregion
+
+
 
 
         public CookieContainer cc;
@@ -32,7 +94,7 @@ namespace AIO.Modules.Keno
 
         public List<int> StratergyArray = new List<int>();
 
-        private FastColoredTextBox richTextBox1;
+        private FastColoredTextBox luaCodeBox;
         private stratGrid stratSelector;
         LuaInterface lua = LuaRuntime.GetLua();
 
@@ -74,7 +136,8 @@ namespace AIO.Modules.Keno
 
         public lastbet last = new lastbet();
 
-        public string[] curr = { "BTC", "ETH", "LTC", "DOGE", "XRP", "BCH", "TRX", "EOS" };
+        public string[] currenciesAvailable = CommonData.CurrenciesAvailable;
+        //public string[] currenciesAvailable = { "BTC", "ETH", "LTC", "DOGE", "XRP", "BCH", "TRX", "EOS" };
 
         CartesianChart ch = new CartesianChart();
         ChartValues<ObservablePoint> data = new ChartValues<ObservablePoint>();
@@ -96,6 +159,9 @@ namespace AIO.Modules.Keno
             this.Controls.Add(stratSelector);
 
             InitializeComponent();
+
+            CommonData.FillCurrencies(currencySelect);
+            CommonData.FillMirrors(siteStake);
 
             groupBox1.BringToFront();
             listView2.BringToFront();
@@ -151,12 +217,12 @@ namespace AIO.Modules.Keno
 
             RegisterLua();
 
-            richTextBox1 = new FastColoredTextBox();
-            richTextBox1.Dock = DockStyle.Fill;
-            richTextBox1.Language = Language.Lua;
-            richTextBox1.BorderStyle = BorderStyle.FixedSingle;
-            tabPage3.Controls.Add(richTextBox1);
-            richTextBox1.Text = @"nextbet  = 0.00000000 --sets your first bet.
+            luaCodeBox = new FastColoredTextBox();
+            luaCodeBox.Dock = DockStyle.Fill;
+            luaCodeBox.Language = Language.Lua;
+            luaCodeBox.BorderStyle = BorderStyle.FixedSingle;
+            tabPage3.Controls.Add(luaCodeBox);
+            luaCodeBox.Text = @"nextbet  = 0.00000000 --sets your first bet.
 selected = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10} -- set selected tiles
 risk     = ""low"" -- set risk level
 currency = ""doge""-- set currency
@@ -320,7 +386,7 @@ end";
             }
         }
 
-        private async void button2_Click(object sender, EventArgs e)
+        private async void startStopScript_Click(object sender, EventArgs e)
         {
             if (running == false)
             {
@@ -333,7 +399,7 @@ end";
                     LuaRuntime.SetLua(lua);
 
 
-                    LuaRuntime.Run(richTextBox1.Text);
+                    LuaRuntime.Run(luaCodeBox.Text);
 
                     GetNumbersTables();
 
@@ -345,7 +411,7 @@ end";
                 }
                 GetLuaVariables();
 
-                currencySelect.SelectedIndex = Array.FindIndex(curr, row => row == currencySelected.ToUpper());
+                currencySelect.SelectedIndex = Array.FindIndex(currenciesAvailable, row => row == currencySelected.ToUpper());
 
 
                 button1.Enabled = false;
@@ -531,11 +597,11 @@ end";
                             //currencySelect.Items.Clear();
                             if (true)
                             {
-                                for (int s = 0; s < curr.Length; s++)
+                                for (int s = 0; s < currenciesAvailable.Length; s++)
                                 {
-                                    if (response.data.user.balances[i].available.currency == curr[s].ToLower())
+                                    if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
                                     {
-                                        currencySelect.Items[s] = string.Format("{0} {1}", curr[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
+                                        currencySelect.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
                                         //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
                                         break;
                                     }
@@ -698,11 +764,11 @@ end";
                             //currencySelect.Items.Clear();
                             if (true)
                             {
-                                for (int s = 0; s < curr.Length; s++)
+                                for (int s = 0; s < currenciesAvailable.Length; s++)
                                 {
-                                    if (response.data.user.balances[i].available.currency == curr[s].ToLower())
+                                    if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
                                     {
-                                        currencySelect.Items[s] = string.Format("{0} {1}", curr[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
+                                        currencySelect.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
                                         //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
                                         break;
                                     }
@@ -1068,7 +1134,7 @@ end";
 
         private async void currencySelect_SelectedIndexChanged(object sender, EventArgs e)
         {
-            currencySelected = curr[currencySelect.SelectedIndex].ToLower();
+            currencySelected = currenciesAvailable[currencySelect.SelectedIndex].ToLower();
 
             string[] current = currencySelect.Text.Split(' ');
             if (current.Length > 1)
@@ -1176,188 +1242,15 @@ end";
             yList.Add(0);
             data.Clear();
         }
-    }
 
-
-
-
-    public class stratGrid : Control
-    {
-        private Rectangle perimeterRect;
-
-        private Rectangle[] squareRects;
-        public int[] squareData { get; set; }
-
-        private Brush idleColor = Brushes.LightGray;
-        private Brush SetecledColor = Brushes.MediumPurple;
-        private Brush WinColor = Brushes.LimeGreen;
-        private Brush UnhitColor = Brushes.MistyRose;
-        private int _squareSpacing;
-
-        public bool selectAllowed = true;
-        public int SquareSpacing
+        private void button3_Click(object sender, EventArgs e)
         {
-            get { return _squareSpacing; }
-            set
-            {
-                _squareSpacing = Math.Abs(value);
-                Invalidate();
-            }
+            startNewGameEngine("ROULETTE", "bnb", "strategies/strat_roulette.lua");
         }
 
-        public stratGrid()
+        private void riskSelect_SelectedValueChanged(object sender, EventArgs e)
         {
 
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
-
-            Size = new Size(100, 100);
-            SquareSpacing = 6;
-
-            Reset();
-
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-
-            base.OnPaint(e);
-
-            e.Graphics.Clear(Parent.BackColor);
-
-            int index = 0;
-
-            int squareWidth = (212 - (SquareSpacing * 6)) / 5;
-            int start = (212 - (squareWidth * 5) - (SquareSpacing * 4)) / 2;
-
-            for (int col = 0; col < 5; col++)
-            {
-                int y = start + (squareWidth + SquareSpacing) * col;
-                for (int row = 0; row < 8; row++)
-                {
-
-                    int x = start + (squareWidth + SquareSpacing) * row;
-                    squareRects[index] = new Rectangle(x, y, squareWidth, squareWidth);
-
-                    if (squareData[index] == 1)
-                    {
-                        e.Graphics.FillRectangle(SetecledColor, squareRects[index]);
-                        e.Graphics.DrawString(" " + (index + 1).ToString(), new Font("Segoe UI", 11), Brushes.Black, squareRects[index]);
-                    }
-                    else if (squareData[index] == 0)
-                    {
-                        e.Graphics.FillRectangle(idleColor, squareRects[index]);
-                        e.Graphics.DrawString(" " + (index + 1).ToString(), new Font("Segoe UI", 11), Brushes.Black, squareRects[index]);
-                    }
-                    else if (squareData[index] == 2)
-                    {
-                        e.Graphics.FillRectangle(UnhitColor, squareRects[index]);
-                        e.Graphics.DrawString(" " + (index + 1).ToString(), new Font("Segoe UI", 11), Brushes.Red, squareRects[index]);
-                    }
-                    else if (squareData[index] == 3)
-                    {
-                        e.Graphics.FillRectangle(WinColor, squareRects[index]);
-                        e.Graphics.DrawString(" " + (index + 1).ToString(), new Font("Segoe UI", 11), Brushes.Black, squareRects[index]);
-                    }
-
-                    index++;
-
-                }
-            }
-
-        }
-
-        protected override void OnSizeChanged(EventArgs e)
-        {
-
-            base.OnSizeChanged(e);
-
-            if (Width > Height)
-            {
-                Height = Width;
-            }
-            else if (Height > Width)
-            {
-                Width = Height;
-            }
-
-            perimeterRect = new Rectangle(0, 0, Width - 1, Height - 1);
-
-        }
-
-        public void Reset()
-        {
-
-            squareRects = new Rectangle[40];
-            squareData = new int[40];
-
-            for (int i = 0; i < squareData.Length; i++) squareData[i] = 0;
-
-            Invalidate();
-
-        }
-
-        public void Clear(List<int> StratergyArray)
-        {
-
-            squareRects = new Rectangle[40];
-            squareData = new int[40];
-
-            for (int i = 0; i < squareData.Length; i++)
-            {
-                squareData[i] = 0;
-            }
-
-            foreach (var s in StratergyArray)
-            {
-                squareData[s] = 1;
-            }
-
-            Invalidate();
-
-        }
-
-        public void SetValue(int index, int c)
-        {
-            if (c == 1)
-            {
-                if (squareData.Count(x => x == 1) < 10)
-                {
-                    squareData[index] = c;
-                    Invalidate();
-                }
-            }
-            else
-            {
-                squareData[index] = c;
-                Invalidate();
-            }
-
-
-        }
-
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            for (int i = 0; i < squareRects.Length; i++)
-            {
-                if (squareRects[i].Contains(e.Location))
-                {
-                    if (selectAllowed == true)
-                    {
-                        if (squareData[i] == 0)
-                        {
-                            SetValue(i, 1);
-                            KenoUI.initForm.button1.Enabled = true;
-                            KenoUI.initForm.button2.Enabled = true;
-                        }
-                        else
-                        {
-                            SetValue(i, 0);
-                        }
-                        KenoUI.initForm.StratergyArray.Clear();
-                        KenoUI.initForm.AppendMultipliers(squareData);
-                    }
-                }
-            }
         }
     }
 

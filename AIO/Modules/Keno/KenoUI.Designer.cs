@@ -45,7 +45,9 @@
             this.StatusLogIn = new System.Windows.Forms.ToolStripStatusLabel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.button3 = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.ResetChartClicked = new System.Windows.Forms.LinkLabel();
             this.currentStreakLabel = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
             this.lowestStreakLabel = new System.Windows.Forms.Label();
@@ -97,7 +99,6 @@
             this.autoPickBtn = new System.Windows.Forms.Button();
             this.LiveBalLabel = new System.Windows.Forms.TextBox();
             this.riskLabel = new System.Windows.Forms.Label();
-            this.ResetChartClicked = new System.Windows.Forms.LinkLabel();
             this.groupBox1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -131,7 +132,7 @@
             this.button2.TabIndex = 2;
             this.button2.Text = "Start Lua";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.startStopScript_Click);
             // 
             // clearTable
             // 
@@ -249,6 +250,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.button3);
             this.tabPage1.Controls.Add(this.groupBox4);
             this.tabPage1.Controls.Add(this.BetCost);
             this.tabPage1.Controls.Add(this.label2);
@@ -264,6 +266,16 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Main";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(62, 51);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(128, 22);
+            this.button3.TabIndex = 11;
+            this.button3.Text = "Cross Strategie test";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // groupBox4
             // 
@@ -302,6 +314,17 @@
             this.groupBox4.TabIndex = 13;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Statistics";
+            // 
+            // ResetChartClicked
+            // 
+            this.ResetChartClicked.AutoSize = true;
+            this.ResetChartClicked.Location = new System.Drawing.Point(122, 166);
+            this.ResetChartClicked.Name = "ResetChartClicked";
+            this.ResetChartClicked.Size = new System.Drawing.Size(63, 13);
+            this.ResetChartClicked.TabIndex = 38;
+            this.ResetChartClicked.TabStop = true;
+            this.ResetChartClicked.Text = "Reset Chart";
+            this.ResetChartClicked.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ResetChartClicked_LinkClicked);
             // 
             // currentStreakLabel
             // 
@@ -623,19 +646,6 @@
             this.siteStake.BackColor = System.Drawing.SystemColors.Window;
             this.siteStake.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.siteStake.FormattingEnabled = true;
-            this.siteStake.Items.AddRange(new object[] {
-            "Stake.com",
-            "Stake.bet",
-            "Stake.games",
-            "Staketr.com",
-            "Staketr2.com",
-            "Staketr3.com",
-            "Staketr4.com",
-            "Staketr5.com",
-            "Stake.bz",
-            "Stake.jp",
-            "Stake.ac",
-            "Stake.icu"});
             this.siteStake.Location = new System.Drawing.Point(62, 27);
             this.siteStake.Name = "siteStake";
             this.siteStake.Size = new System.Drawing.Size(109, 21);
@@ -684,6 +694,7 @@
             this.riskSelect.Size = new System.Drawing.Size(92, 21);
             this.riskSelect.TabIndex = 2;
             this.riskSelect.SelectedIndexChanged += new System.EventHandler(this.riskSelect_SelectedIndexChanged);
+            this.riskSelect.SelectedValueChanged += new System.EventHandler(this.riskSelect_SelectedValueChanged);
             // 
             // tabPage2
             // 
@@ -691,7 +702,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(451, 263);
+            this.tabPage2.Size = new System.Drawing.Size(451, 256);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Script";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -798,7 +809,7 @@
             this.tabPage5.Controls.Add(this.consoleLog);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Size = new System.Drawing.Size(451, 263);
+            this.tabPage5.Size = new System.Drawing.Size(451, 256);
             this.tabPage5.TabIndex = 2;
             this.tabPage5.Text = "Console";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -878,18 +889,7 @@
             this.riskLabel.TabIndex = 10;
             this.riskLabel.Text = "Risk:";
             // 
-            // ResetChartClicked
-            // 
-            this.ResetChartClicked.AutoSize = true;
-            this.ResetChartClicked.Location = new System.Drawing.Point(122, 166);
-            this.ResetChartClicked.Name = "ResetChartClicked";
-            this.ResetChartClicked.Size = new System.Drawing.Size(63, 13);
-            this.ResetChartClicked.TabIndex = 38;
-            this.ResetChartClicked.TabStop = true;
-            this.ResetChartClicked.Text = "Reset Chart";
-            this.ResetChartClicked.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ResetChartClicked_LinkClicked);
-            // 
-            // Form1
+            // KenoUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -905,7 +905,7 @@
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Name = "Form1";
+            this.Name = "KenoUI";
             this.Text = "Keno";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
@@ -1001,6 +1001,7 @@
         private System.Windows.Forms.Label wagerLabel;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.LinkLabel ResetChartClicked;
+        private System.Windows.Forms.Button button3;
     }
 }
 
