@@ -51,15 +51,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.profitLabel = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.btnLoginLogout = new System.Windows.Forms.Button();
-            this.btnCheckBalance = new System.Windows.Forms.Button();
-            this.label14 = new System.Windows.Forms.Label();
-            this.mirrorSiteSelector = new System.Windows.Forms.ComboBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.currencySelector = new System.Windows.Forms.ComboBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.apiKeyInput = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.ResultLabeL = new System.Windows.Forms.Label();
@@ -95,16 +87,17 @@
             this.ServerSeedBox = new System.Windows.Forms.TextBox();
             this.SimulateButton = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.authorizeControl1 = new AIO.Common.AuthorizeControl();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
             this.tabControl2.SuspendLayout();
             this.tabConsole.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.tabPage5.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -112,10 +105,10 @@
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 339);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 535);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.statusStrip1.Size = new System.Drawing.Size(784, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(780, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -130,11 +123,10 @@
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(0, 2);
+            this.tabControl1.Location = new System.Drawing.Point(0, 69);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(384, 133);
+            this.tabControl1.Size = new System.Drawing.Size(384, 156);
             this.tabControl1.TabIndex = 2;
             // 
             // tabPage1
@@ -161,7 +153,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(376, 107);
+            this.tabPage1.Size = new System.Drawing.Size(376, 130);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Statistics";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -355,106 +347,20 @@
             this.label7.TabIndex = 38;
             this.label7.Text = "Profit:";
             // 
-            // tabPage2
+            // button2
             // 
-            this.tabPage2.Controls.Add(this.button2);
-            this.tabPage2.Controls.Add(this.btnLoginLogout);
-            this.tabPage2.Controls.Add(this.btnCheckBalance);
-            this.tabPage2.Controls.Add(this.label14);
-            this.tabPage2.Controls.Add(this.mirrorSiteSelector);
-            this.tabPage2.Controls.Add(this.label13);
-            this.tabPage2.Controls.Add(this.currencySelector);
-            this.tabPage2.Controls.Add(this.label12);
-            this.tabPage2.Controls.Add(this.apiKeyInput);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(376, 107);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Settings";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // btnLoginLogout
-            // 
-            this.btnLoginLogout.Location = new System.Drawing.Point(295, 33);
-            this.btnLoginLogout.Name = "btnLoginLogout";
-            this.btnLoginLogout.Size = new System.Drawing.Size(75, 21);
-            this.btnLoginLogout.TabIndex = 8;
-            this.btnLoginLogout.Text = "Login";
-            this.btnLoginLogout.UseVisualStyleBackColor = true;
-            this.btnLoginLogout.Click += new System.EventHandler(this.btnLoginLogout_Click);
-            // 
-            // btnCheckBalance
-            // 
-            this.btnCheckBalance.Location = new System.Drawing.Point(295, 64);
-            this.btnCheckBalance.Name = "btnCheckBalance";
-            this.btnCheckBalance.Size = new System.Drawing.Size(75, 21);
-            this.btnCheckBalance.TabIndex = 7;
-            this.btnCheckBalance.Text = "Check";
-            this.btnCheckBalance.UseVisualStyleBackColor = true;
-            this.btnCheckBalance.Click += new System.EventHandler(this.CheckBtn_Click);
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(6, 37);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(28, 13);
-            this.label14.TabIndex = 5;
-            this.label14.Text = "Site:";
-            // 
-            // mirrorSiteSelector
-            // 
-            this.mirrorSiteSelector.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.mirrorSiteSelector.FormattingEnabled = true;
-            this.mirrorSiteSelector.Location = new System.Drawing.Point(73, 34);
-            this.mirrorSiteSelector.Name = "mirrorSiteSelector";
-            this.mirrorSiteSelector.Size = new System.Drawing.Size(216, 21);
-            this.mirrorSiteSelector.TabIndex = 4;
-            this.mirrorSiteSelector.SelectedIndexChanged += new System.EventHandler(this.SiteComboBox2_SelectedIndexChanged);
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(6, 67);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(52, 13);
-            this.label13.TabIndex = 3;
-            this.label13.Text = "Currency:";
-            // 
-            // currencySelector
-            // 
-            this.currencySelector.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.currencySelector.FormattingEnabled = true;
-            this.currencySelector.Location = new System.Drawing.Point(73, 64);
-            this.currencySelector.Name = "currencySelector";
-            this.currencySelector.Size = new System.Drawing.Size(216, 21);
-            this.currencySelector.TabIndex = 2;
-            this.currencySelector.SelectedIndexChanged += new System.EventHandler(this.currencyComboBox_SelectedIndexChanged);
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(5, 9);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(45, 13);
-            this.label12.TabIndex = 1;
-            this.label12.Text = "Api key:";
-            // 
-            // apiKeyInput
-            // 
-            this.apiKeyInput.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.apiKeyInput.Location = new System.Drawing.Point(73, 8);
-            this.apiKeyInput.Name = "apiKeyInput";
-            this.apiKeyInput.Size = new System.Drawing.Size(297, 20);
-            this.apiKeyInput.TabIndex = 0;
-            this.apiKeyInput.UseSystemPasswordChar = true;
-            this.apiKeyInput.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.button2.Location = new System.Drawing.Point(191, 35);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(186, 21);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "Cross Strategie test";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(28, 216);
+            this.label1.Location = new System.Drawing.Point(335, 113);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(38, 13);
             this.label1.TabIndex = 4;
@@ -463,7 +369,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(185, 216);
+            this.label2.Location = new System.Drawing.Point(335, 100);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(37, 13);
             this.label2.TabIndex = 5;
@@ -471,10 +377,12 @@
             // 
             // ResultLabeL
             // 
+            this.ResultLabeL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.ResultLabeL.AutoSize = true;
             this.ResultLabeL.Font = new System.Drawing.Font("Segoe UI", 48F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.ResultLabeL.ForeColor = System.Drawing.Color.LimeGreen;
-            this.ResultLabeL.Location = new System.Drawing.Point(102, 132);
+            this.ResultLabeL.Location = new System.Drawing.Point(3, 51);
             this.ResultLabeL.Name = "ResultLabeL";
             this.ResultLabeL.Size = new System.Drawing.Size(200, 86);
             this.ResultLabeL.TabIndex = 6;
@@ -484,7 +392,7 @@
             // 
             this.TargetLabeL.AutoSize = true;
             this.TargetLabeL.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.TargetLabeL.Location = new System.Drawing.Point(21, 181);
+            this.TargetLabeL.Location = new System.Drawing.Point(21, 19);
             this.TargetLabeL.Name = "TargetLabeL";
             this.TargetLabeL.Size = new System.Drawing.Size(65, 25);
             this.TargetLabeL.TabIndex = 7;
@@ -492,7 +400,7 @@
             // 
             // LogButton
             // 
-            this.LogButton.Location = new System.Drawing.Point(305, 134);
+            this.LogButton.Location = new System.Drawing.Point(302, 7);
             this.LogButton.Name = "LogButton";
             this.LogButton.Size = new System.Drawing.Size(75, 22);
             this.LogButton.TabIndex = 9;
@@ -503,22 +411,27 @@
             // 
             // panel1
             // 
-            this.panel1.Location = new System.Drawing.Point(0, 236);
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.panel1.Location = new System.Drawing.Point(0, 378);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(384, 100);
+            this.panel1.Size = new System.Drawing.Size(384, 156);
             this.panel1.TabIndex = 10;
             // 
             // tabControl2
             // 
+            this.tabControl2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl2.Controls.Add(this.tabPageLua);
             this.tabControl2.Controls.Add(this.tabConsole);
             this.tabControl2.Controls.Add(this.tabPage3);
             this.tabControl2.Controls.Add(this.tabPage4);
             this.tabControl2.Controls.Add(this.tabPage5);
-            this.tabControl2.Location = new System.Drawing.Point(383, 2);
+            this.tabControl2.Location = new System.Drawing.Point(383, 69);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(401, 334);
+            this.tabControl2.Size = new System.Drawing.Size(397, 465);
             this.tabControl2.TabIndex = 11;
             // 
             // tabPageLua
@@ -526,7 +439,7 @@
             this.tabPageLua.Location = new System.Drawing.Point(4, 22);
             this.tabPageLua.Name = "tabPageLua";
             this.tabPageLua.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageLua.Size = new System.Drawing.Size(393, 308);
+            this.tabPageLua.Size = new System.Drawing.Size(389, 439);
             this.tabPageLua.TabIndex = 0;
             this.tabPageLua.Text = "Lua";
             this.tabPageLua.UseVisualStyleBackColor = true;
@@ -809,41 +722,51 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(701, 307);
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(669, 503);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 22);
+            this.button1.Size = new System.Drawing.Size(103, 22);
             this.button1.TabIndex = 12;
             this.button1.Text = "Start";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // button2
+            // panel2
             // 
-            this.button2.Location = new System.Drawing.Point(184, 84);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(186, 21);
-            this.button2.TabIndex = 9;
-            this.button2.Text = "Cross Strategie test";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.panel2.Controls.Add(this.button2);
+            this.panel2.Controls.Add(this.label2);
+            this.panel2.Controls.Add(this.TargetLabeL);
+            this.panel2.Controls.Add(this.label1);
+            this.panel2.Controls.Add(this.ResultLabeL);
+            this.panel2.Controls.Add(this.LogButton);
+            this.panel2.Location = new System.Drawing.Point(0, 231);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(384, 141);
+            this.panel2.TabIndex = 13;
+            // 
+            // authorizeControl1
+            // 
+            this.authorizeControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.authorizeControl1.BackColor = System.Drawing.Color.DarkGray;
+            this.authorizeControl1.Location = new System.Drawing.Point(0, 0);
+            this.authorizeControl1.Name = "authorizeControl1";
+            this.authorizeControl1.Size = new System.Drawing.Size(780, 63);
+            this.authorizeControl1.TabIndex = 14;
             // 
             // LimboUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 361);
+            this.ClientSize = new System.Drawing.Size(780, 557);
+            this.Controls.Add(this.authorizeControl1);
+            this.Controls.Add(this.panel2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.tabControl2);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.LogButton);
-            this.Controls.Add(this.TargetLabeL);
-            this.Controls.Add(this.ResultLabeL);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.tabControl1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
-            this.MaximizeBox = false;
             this.Name = "LimboUI";
             this.Text = "Limbo";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -852,8 +775,6 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage2.PerformLayout();
             this.tabControl2.ResumeLayout(false);
             this.tabConsole.ResumeLayout(false);
             this.tabConsole.PerformLayout();
@@ -861,6 +782,8 @@
             this.tabPage4.ResumeLayout(false);
             this.tabPage5.ResumeLayout(false);
             this.tabPage5.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -870,7 +793,6 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label ResultLabeL;
@@ -906,13 +828,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label profitLabel;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.ComboBox mirrorSiteSelector;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.ComboBox currencySelector;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.TextBox apiKeyInput;
-        private System.Windows.Forms.Button btnCheckBalance;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TextBox CommandBox2;
         private System.Windows.Forms.Button CommandButton2;
@@ -933,8 +848,9 @@
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.TextBox NonceStopBox;
         private System.Windows.Forms.LinkLabel ResetBoxSeed;
-        private System.Windows.Forms.Button btnLoginLogout;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Panel panel2;
+        private Common.AuthorizeControl authorizeControl1;
     }
 }
 

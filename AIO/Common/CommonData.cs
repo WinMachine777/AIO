@@ -1,23 +1,25 @@
-﻿using System.Windows.Forms;
+﻿using System.Linq;
+using System.Windows.Forms;
 
-
-public class CommonData
+namespace AIO.Common
 {
-
-    public static void FillCurrencies(ComboBox combo)
+    public partial class CommonData
     {
-        // fill currency combobox
 
-        combo.Items.Clear();
-
-        foreach (var item in CommonData.CurrenciesAvailable)
+        public static void FillCurrencies(ComboBox combo)
         {
-            combo.Items.Add(item);
+            // fill currency combobox
+
+            combo.Items.Clear();
+
+            foreach (var item in CommonData.CurrenciesAvailable.OrderBy(x => x))
+            {
+                combo.Items.Add(item.ToUpperInvariant());
+            }
+
         }
 
-    }
-
-    public static string[] CurrenciesAvailable = {
+        public static string[] CurrenciesAvailable = {
             "BTC",
             "ETH",
             "LTC",
@@ -39,7 +41,7 @@ public class CommonData
             "USDC"
        };
 
-    public static string[] MirrorsAvailable = {
+        public static string[] MirrorsAvailable = {
         "Stake.com",
         "Stake.bet",
         "Stake.games",
@@ -54,17 +56,18 @@ public class CommonData
         "Stake.icu",
         "Stake.us"
        };
-    public static void FillMirrors(ComboBox combo)
-    {
-        // fill currency combobox
-
-        combo.Items.Clear();
-
-        foreach (var item in CommonData.MirrorsAvailable)
+        public static void FillMirrors(ComboBox combo)
         {
-            combo.Items.Add(item);
+            // fill currency combobox
+
+            combo.Items.Clear();
+
+            foreach (var item in CommonData.MirrorsAvailable.OrderBy(x => x))
+            {
+                combo.Items.Add(item.ToUpperInvariant());
+            }
+
         }
 
     }
-
 }

@@ -57,13 +57,16 @@ namespace AIO.Modules.Keno
                 WriteScriptBox(strat);
             }
 
+            authorizeControl1.SetApiKey(apiKey);
+            authorizeControl1.SetMirror(mirror);
+            authorizeControl1.SetCurrency(currency);
 
-            textBox1.Text = apiKey;
+            //textBox1.Text = apiKey;
             //siteStake.SelectedValue = siteStake.Items.IndexOf();
-            siteStake.SelectedValue = mirror;
+            //siteStake.SelectedValue = mirror;
 
-            StakeSite = siteStake.Text.ToLower();
-            textBox1_TextChanged(null, null);
+            //StakeSite = siteStake.Text.ToLower();
+            // textBox1_TextChanged(null, null);
 
             // Authorize().Wait();
 
@@ -112,7 +115,19 @@ namespace AIO.Modules.Keno
         public bool running = false;
         public static KenoUI initForm;
         public string riskSelected = "low";
-        public string currencySelected = "btc";
+
+        public string currencySelected
+        {
+            get
+            {
+                return authorizeControl1.Currency;
+            }
+            set
+            {
+                authorizeControl1.SetCurrency(value);
+            }
+        }
+
         public decimal BaseBet = 0;
         public decimal amount = 0;
         public decimal currentBal = 0;
@@ -160,8 +175,8 @@ namespace AIO.Modules.Keno
 
             InitializeComponent();
 
-            CommonData.FillCurrencies(currencySelect);
-            CommonData.FillMirrors(siteStake);
+            // CommonData.FillCurrencies(currencySelect);
+            //CommonData.FillMirrors(siteStake);
 
             groupBox1.BringToFront();
             listView2.BringToFront();
@@ -174,11 +189,13 @@ namespace AIO.Modules.Keno
             Icon = Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
             initForm = this;
-            currencySelect.SelectedIndex = 0;
+            //currencySelect.SelectedIndex = 0;
             riskSelect.SelectedIndex = 1;
-            siteStake.SelectedIndex = 0;
+            //siteStake.SelectedIndex = 0;
+
             this.listView1.ItemChecked += this.listView1_ItemChecked;
             this.CmdBox.KeyDown += this.CmdBox_KeyDown;
+
             //this.tabPage5.Click += this.tabPage5_Click;
             xList.Add(0);
             yList.Add(0);
@@ -411,7 +428,10 @@ end";
                 }
                 GetLuaVariables();
 
-                currencySelect.SelectedIndex = Array.FindIndex(currenciesAvailable, row => row == currencySelected.ToUpper());
+
+                authorizeControl1.SetCurrency(currencySelected);
+
+                // currencySelect.SelectedIndex = Array.FindIndex(currenciesAvailable, row => row == currencySelected.ToUpper());
 
 
                 button1.Enabled = false;
@@ -433,7 +453,10 @@ end";
                 running = true;
                 button2.Text = "Stop";
                 //button2.Enabled = false;
-                currencySelect.Enabled = false;
+                //currencySelect.Enabled = false;
+
+                authorizeControl1.CanChangeCurrency(false);
+
                 //textBox1.Enabled = false;
                 stratSelector.selectAllowed = false;
 
@@ -486,7 +509,10 @@ end";
             clearTable.Enabled = true;
             riskSelect.Enabled = true;
             stratSelector.selectAllowed = true;
-            currencySelect.Enabled = true;
+
+            // currencySelect.Enabled = true;
+            authorizeControl1.CanChangeCurrency(true);
+
             //textBox1.Enabled = true;
             StratergyArray.Clear();
             button2.Text = "Start Lua";
@@ -583,7 +609,10 @@ end";
                     if (response.data != null)
                     {
                         StatusLogIn.Text = String.Format("({0}) Authorized ", response.data.user.name);
-                        textBox1.Enabled = false;
+                        //textBox1.Enabled = false;
+
+                        authorizeControl1.IsRunning(true);
+
                         for (var i = 0; i < response.data.user.balances.Count; i++)
                         {
                             if (response.data.user.balances[i].available.currency == currencySelected.ToLower())
@@ -595,19 +624,21 @@ end";
 
                             }
                             //currencySelect.Items.Clear();
-                            if (true)
-                            {
-                                for (int s = 0; s < currenciesAvailable.Length; s++)
-                                {
-                                    if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
-                                    {
-                                        currencySelect.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
-                                        //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
-                                        break;
-                                    }
-                                }
-                            }
+                            //if (true)
+                            //{
+                            //    for (int s = 0; s < currenciesAvailable.Length; s++)
+                            //    {
+                            //        if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
+                            //        {
+                            //            currencySelect.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
+                            //            //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
+                            //            break;
+                            //        }
+                            //    }
+                            //}
                         }
+
+                        authorizeControl1.SyncCurrencies(response.data.user.balances);
 
                     }
 
@@ -762,19 +793,22 @@ end";
                                 balanceLabel.Text = currentBal.ToString("0.00000000");
                             }
                             //currencySelect.Items.Clear();
-                            if (true)
-                            {
-                                for (int s = 0; s < currenciesAvailable.Length; s++)
-                                {
-                                    if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
-                                    {
-                                        currencySelect.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
-                                        //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
-                                        break;
-                                    }
-                                }
-                            }
+                            //if (true)
+                            //{
+                            //    for (int s = 0; s < currenciesAvailable.Length; s++)
+                            //    {
+                            //        if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
+                            //        {
+                            //            currencySelect.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
+                            //            //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
+                            //            break;
+                            //        }
+                            //    }
+                            //}
                         }
+
+                        authorizeControl1.SyncCurrencies(response.data.user.balances);
+
                     }
                     //StatusLogIn.Text = "authorized";
                 }
@@ -1134,14 +1168,14 @@ end";
 
         private async void currencySelect_SelectedIndexChanged(object sender, EventArgs e)
         {
-            currencySelected = currenciesAvailable[currencySelect.SelectedIndex].ToLower();
+            //currencySelected = currenciesAvailable[currencySelect.SelectedIndex].ToLower();
 
-            string[] current = currencySelect.Text.Split(' ');
-            if (current.Length > 1)
-            {
-                LiveBalLabel.Text = String.Format("{0} | {1}", current[0], current[1]);
-                balanceLabel.Text = current[1];
-            }
+            //string[] current = currencySelect.Text.Split(' ');
+            //if (current.Length > 1)
+            //{
+            //    LiveBalLabel.Text = String.Format("{0} | {1}", current[0], current[1]);
+            //    balanceLabel.Text = current[1];
+            //}
 
         }
 
@@ -1152,16 +1186,16 @@ end";
 
         private async void textBox1_TextChanged(object sender, EventArgs e)
         {
-            token = textBox1.Text;
-            if (token.Length == 96)
-            {
-                await Authorize();
-                await Task.Delay(200);
-            }
-            else
-            {
-                StatusLogIn.Text = "Unauthorized";
-            }
+            //token = textBox1.Text;
+            //if (token.Length == 96)
+            //{
+            //    await Authorize();
+            //    await Task.Delay(200);
+            //}
+            //else
+            //{
+            //    StatusLogIn.Text = "Unauthorized";
+            //}
         }
 
         private void LiveBalLabel_TextChanged(object sender, EventArgs e)
@@ -1173,8 +1207,8 @@ end";
 
         private void siteStake_SelectedIndexChanged(object sender, EventArgs e)
         {
-            StakeSite = siteStake.Text.ToLower();
-            textBox1_TextChanged(null, null);
+            //StakeSite = siteStake.Text.ToLower();
+            //textBox1_TextChanged(null, null);
 
         }
 

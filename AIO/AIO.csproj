@@ -129,6 +129,9 @@
     <Compile Include="Common\AuthorizeControl.Designer.cs">
       <DependentUpon>AuthorizeControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Common\ComboBoxPlus.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Common\CommonData.cs" />
     <Compile Include="Common\GraphQLQueries.cs" />
     <Compile Include="Common\schema.cs" />
@@ -158,14 +161,14 @@
     </Compile>
     <Compile Include="Common\XFormUI.cs" />
     <Compile Include="Common\ICrossStrategy.cs" />
-    <Compile Include="Modules\Rouletee\RouletteUI.cs">
+    <Compile Include="Modules\Roulette\RouletteUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Modules\Rouletee\RouletteUI.Designer.cs">
+    <Compile Include="Modules\Roulette\RouletteUI.Designer.cs">
       <DependentUpon>RouletteUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="Modules\Rouletee\rouletteBet.cs" />
-    <Compile Include="Modules\Rouletee\shema.cs" />
+    <Compile Include="Modules\Roulette\rouletteBet.cs" />
+    <Compile Include="Modules\Roulette\shema.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Common\AuthorizeControl.resx">
@@ -181,7 +184,7 @@
     <EmbeddedResource Include="Modules\Limbo\LimboUI.resx">
       <DependentUpon>LimboUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Modules\Rouletee\RouletteUI.resx">
+    <EmbeddedResource Include="Modules\Roulette\RouletteUI.resx">
       <DependentUpon>RouletteUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

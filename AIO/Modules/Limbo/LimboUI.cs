@@ -38,7 +38,7 @@ namespace AIO.Modules.Limbo
         {
             this.Invoke((MethodInvoker)delegate ()
             {
-                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, StakeSite, currency, stratFile);
+                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, CurrentSite, currency, stratFile);
                 //this.Close();
             });
         }
@@ -101,7 +101,19 @@ namespace AIO.Modules.Limbo
         CartesianChart ch = new CartesianChart();
         ChartValues<ObservablePoint> data = new ChartValues<ObservablePoint>();
 
-        public string StakeSite = "stake.com";
+        public string CurrentSite //= "stake.com";
+        {
+            get
+            {
+                return authorizeControl1.Domain;
+                ;
+            }
+            set
+            {
+                authorizeControl1.SetMirror(value);
+            }
+        }
+
         public string token = "";
 
         public string clientSeed = "";
@@ -198,8 +210,8 @@ namespace AIO.Modules.Limbo
             Application.ApplicationExit += new EventHandler(Application_ApplicationExit);
 
 
-            CommonData.FillCurrencies(currencySelector);
-            CommonData.FillMirrors(mirrorSiteSelector);
+            //CommonData.FillCurrencies(currencySelector);
+            //CommonData.FillMirrors(mirrorSiteSelector);
 
             this.listView1.ItemChecked += this.listView1_ItemChecked;
             this.CommandBox2.KeyDown += this.CmdBox_KeyDown;
@@ -302,7 +314,7 @@ end";
                 return;
             }
 
-            var mainurl = "https://api." + StakeSite + "/graphql";
+            var mainurl = "https://api." + CurrentSite + "/graphql";
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -421,7 +433,8 @@ end";
         {
             running = false;
             button1.Enabled = true;
-            currencySelector.Enabled = true;
+            //currencySelector.Enabled = true;
+            authorizeControl1.IsRunning(false);
             button1.Text = "Start";
         }
 
@@ -547,29 +560,29 @@ end";
             }
         }
 
-        private async void textBox1_TextChanged(object sender, EventArgs e)
-        {
-            token = apiKeyInput.Text;
-            //Properties.Settings.Default.token = token;
+        //private async void textBox1_TextChanged(object sender, EventArgs e)
+        //{
+        //    token = apiKeyInput.Text;
+        //    //Properties.Settings.Default.token = token;
 
-        }
+        //}
 
-        private void currencyComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            currencySelected = currenciesAvailable[currencySelector.SelectedIndex].ToLower();
-            //Properties.Settings.Default.indexCurrency = currencySelector.SelectedIndex;
-            string[] current = currencySelector.Text.Split(' ');
-            if (current.Length > 1)
-            {
-                balanceLabel.Text = current[1] + " " + currencySelected;
-            }
-        }
+        //private void currencyComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        //{
+        //    //currencySelected = currenciesAvailable[currencySelector.SelectedIndex].ToLower();
+        //    ////Properties.Settings.Default.indexCurrency = currencySelector.SelectedIndex;
+        //    //string[] current = currencySelector.Text.Split(' ');
+        //    //if (current.Length > 1)
+        //    //{
+        //    //    balanceLabel.Text = current[1] + " " + currencySelected;
+        //    //}
+        //}
 
-        private void SiteComboBox2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            StakeSite = mirrorSiteSelector.Text.ToLower();
-            //Properties.Settings.Default.indexSite = mirrorSiteSelector.SelectedIndex;
-        }
+        //private void SiteComboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        //{
+        //    CurrentSite = mirrorSiteSelector.Text.ToLower();
+        //    //Properties.Settings.Default.indexSite = mirrorSiteSelector.SelectedIndex;
+        //}
 
         private async void button1_Click(object sender, EventArgs e)
         {
@@ -584,11 +597,7 @@ end";
                     UnSetVariables();
                     SetLuaVariables(0);
                     LuaRuntime.SetLua(lua);
-
-
                     LuaRuntime.Run(luaCodeBox.Text);
-
-
                 }
                 catch (Exception ex)
                 {
@@ -599,13 +608,19 @@ end";
                 }
                 GetLuaVariables();
 
-                currencySelector.SelectedIndex = Array.FindIndex(currenciesAvailable, row => row == currencySelected.ToUpper());
+                //currencySelector.SelectedIndex = Array.FindIndex(currenciesAvailable, row => row == currencySelected.ToUpper());
+
+                authorizeControl1.ChangeCurrency(currencySelected);
+
                 if (ready == true)
                 {
                     button1.Enabled = false;
                     running = true;
                     button1.Text = "Stop";
-                    currencySelector.Enabled = false;
+
+                    //currencySelector.Enabled = false;
+                    authorizeControl1.CanChangeCurrency(false);
+
                     beginMs = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
                     StartBet();
                 }
@@ -613,7 +628,6 @@ end";
                 {
                     bSta();
                 }
-
 
             }
             else
@@ -820,29 +834,28 @@ end";
         #endregion
 
 
-        private void RefreshBalances(List<Balances> balances)
-        {
-            try
-            {
-                for (var i = 0; i < balances.Count; i++)
-                {
-                    if (balances[i].available.currency == currencySelected.ToLower())
-                    {
-                        currentBal = balances[i].available.amount;
-                        balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
-                    }
-                    var index = Array.FindIndex(currenciesAvailable, row => row.Contains(balances[i].available.currency.ToLower()));
-                    if (index != -1)
-                    {
-                        currencySelector.Items[index] = string.Format("{0} {1}", currenciesAvailable[index], balances[i].available.amount.ToString("0.00000000"));
-                    }
-                }
-
-            }
-            catch (Exception)
-            {
-            }
-        }
+        //private void RefreshBalances(List<Balances> balances)
+        //{
+        //    try
+        //    {
+        //        for (var i = 0; i < balances.Count; i++)
+        //        {
+        //            if (balances[i].available.currency == currencySelected.ToLower())
+        //            {
+        //                currentBal = balances[i].available.amount;
+        //                balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
+        //            }
+        //            var index = Array.FindIndex(currenciesAvailable, row => row.Contains(balances[i].available.currency.ToLower()));
+        //            if (index != -1)
+        //            {
+        //                currencySelector.Items[index] = string.Format("{0} {1}", currenciesAvailable[index], balances[i].available.amount.ToString("0.00000000"));
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //    }
+        //}
 
         async Task LimboBet()
         {
@@ -903,7 +916,9 @@ end";
 
                         if (response.data.limboBet.user.balances != null)
                         {
-                            RefreshBalances(response.data.limboBet.user.balances);
+                            // RefreshBalances(response.data.limboBet.user.balances);
+                            authorizeControl1.SyncCurrencies(response.data.limboBet.user.balances);
+                            ;
                         }
 
                         //(new System.Collections.Generic.Mscorlib_CollectionDebugView<Limbo.Balances>(response.data.limboBet.user.balances).Items[0]).available
@@ -1039,20 +1054,23 @@ end";
                             {
                                 currentBal = response.data.user.balances[i].available.amount;
                                 balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
+                                break;
                             }
-                            if (true)
-                            {
-                                for (int s = 0; s < currenciesAvailable.Length; s++)
-                                {
-                                    if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
-                                    {
-                                        currencySelector.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
 
-                                        break;
-                                    }
-                                }
-                            }
+                            //if (true)
+                            //{
+                            //    for (int s = 0; s < currenciesAvailable.Length; s++)
+                            //    {
+                            //        if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
+                            //        {
+                            //            currencySelector.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
+                            //            break;
+                            //        }
+                            //    }
+                            //}
                         }
+
+                        authorizeControl1.SyncCurrencies(response.data.user.balances);
                     }
                 }
             }
@@ -1071,21 +1089,21 @@ end";
 
             Time.Text = String.Format("{0} : {1} : {2}", hours, minutes, seconds);
         }
-        private void clearLinkbtn_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            apiKeyInput.Clear();
-            apiKeyInput.Enabled = true;
-            token = "";
-            toolStripStatusLabel1.Text = "Unauthorized";
-            btnLoginLogout.BackColor = Color.Red;
-        }
+        //private void clearLinkbtn_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        //{
+        //    apiKeyInput.Clear();
+        //    apiKeyInput.Enabled = true;
+        //    token = "";
+        //    toolStripStatusLabel1.Text = "Unauthorized";
+        //    btnLoginLogout.BackColor = Color.Red;
+        //}
 
-        private async void CheckBtn_Click(object sender, EventArgs e)
-        {
-            btnCheckBalance.Enabled = false;
-            await CheckBalance();
-            btnCheckBalance.Enabled = true;
-        }
+        //private async void CheckBtn_Click(object sender, EventArgs e)
+        //{
+        //    btnCheckBalance.Enabled = false;
+        //    await CheckBalance();
+        //    btnCheckBalance.Enabled = true;
+        //}
 
         public string RandomString(int length)
         {
@@ -1169,7 +1187,7 @@ end";
             ListViewItem item = e.Item as ListViewItem;
             if (e.Item.Checked == true)
             {
-                Process.Start(new ProcessStartInfo(string.Format("https://{1}/casino/home?betId={0}&modal=bet", e.Item.Text, StakeSite)) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(string.Format("https://{1}/casino/home?betId={0}&modal=bet", e.Item.Text, CurrentSite)) { UseShellExecute = true });
             }
         }
 
@@ -1410,16 +1428,22 @@ end";
                     {
                         is_connected = true;
                         toolStripStatusLabel1.Text = String.Format("Authorized.");
-                        apiKeyInput.Enabled = false;
+
+                        //apiKeyInput.Enabled = false;
+
+                        authorizeControl1.IsConnected = true;
+
                         for (var i = 0; i < response.data.user.balances.Count; i++)
                         {
                             if (response.data.user.balances[i].available.currency == currencySelected.ToLower())
                             {
                                 currentBal = response.data.user.balances[i].available.amount;
                                 balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
-
+                                break;
                             }
+
                             //currencySelect.Items.Clear();
+                            /*
                             if (true)
                             {
                                 for (int s = 0; s < currenciesAvailable.Length; s++)
@@ -1432,7 +1456,11 @@ end";
                                     }
                                 }
                             }
+                            */
+
                         }
+
+                        authorizeControl1.SyncCurrencies(response.data.user.balances);
 
                     }
 
@@ -1463,6 +1491,7 @@ end";
         {
             while (sim == true)
             {
+
                 if (nonce > stopNonce || balanceSim < amount || target <= 1)
                 {
                     if (target <= 1)
@@ -1474,6 +1503,7 @@ end";
                     sim = false;
                     break;
                 }
+
                 decimal result = LimboResult(serverSeed, clientSeed, nonce);
                 nonce += 1;
 
@@ -1481,6 +1511,7 @@ end";
                 decimal payoutMultiplier = 0;
                 currentWager += amount;
                 string winStatus = "lose";
+
                 if (result > (decimal)target)
                 {
                     losestreak = 0;
@@ -1511,7 +1542,6 @@ end";
                 last.target = target;
                 last.result = (double)result;
 
-
                 highestStreak.Add(winstreak);
                 highestStreak = new List<int> { highestStreak.Max() };
                 lowestStreak.Add(-losestreak);
@@ -1530,6 +1560,7 @@ end";
 
                 highestBet.Add(amount);
                 highestBet = new List<decimal> { highestBet.Max() };
+
                 this.Invoke((MethodInvoker)delegate ()
                 {
                     balanceLabel.Text = String.Format("{0}", balanceSim.ToString("0.00000000"));
@@ -1542,13 +1573,17 @@ end";
                     highestBetLabel.Text = highestBet.Max().ToString("0.00000000");
                     Application.DoEvents();
                 });
+
                 //SetStatistics();
                 string box = String.Format("[{0}] {4}x  |  {1}   |  bet: {5}  |  profit:  {2}   [{3}]", nonce - 1, result.ToString("0.0000"), currentProfit.ToString("0.00000000"), winStatus, target.ToString("0.00"), amount.ToString("0.00000000"));
+                
                 listBox3.Items.Insert(0, box);
+
                 if (listBox3.Items.Count > 200)
                 {
                     listBox3.Items.RemoveAt(listBox3.Items.Count - 1);
                 }
+
                 try
                 {
                     lua["balance"] = balanceSim;
@@ -1565,9 +1600,8 @@ end";
 
                     lua["lastBet"] = last;
                     lua["currentprofit"] = profitCurr;
+
                     LuaRuntime.SetLua(lua);
-
-
                     LuaRuntime.Run("dobet()");
 
                 }
@@ -1577,6 +1611,7 @@ end";
                     luaPrint(ex.Message);
                     sim = false;
                 }
+
                 Lastbet = (decimal)(double)lua["nextbet"];
                 amount = Lastbet;
                 currencySelected = (string)lua["currency"];
@@ -1724,7 +1759,6 @@ end";
 
         private void RegisterSim()
         {
-
             lua.RegisterFunction("vault", this, new dVaultEmpty(EmptyVaultFunc).Method);
             lua.RegisterFunction("tip", this, new dTipEmpty(EmptyTipFunc).Method);
             lua.RegisterFunction("print", this, new LogConsole(luaPrint).Method);
@@ -1738,35 +1772,33 @@ end";
             this.Invoke((MethodInvoker)delegate ()
             {
                 luaPrint("Function not available in simulation. (resetseed)");
-
             });
         }
+
         public void EmptyVaultFunc(decimal amount)
         {
             this.Invoke((MethodInvoker)delegate ()
             {
                 luaPrint("Function not available in simulation. (vault)");
-
             });
         }
+
         public void EmptyTipFunc(string user, decimal amount)
         {
             this.Invoke((MethodInvoker)delegate ()
             {
                 luaPrint("Function not available in simulation. (tip)");
-
             });
         }
 
+        /*
         private async void btnLoginLogout_Click(object sender, EventArgs e)
         {
-
             if ((sender as Button).Text == "Logout")
             {
                 clearLinkbtn_LinkClicked(null, null);
                 return;
             }
-
             if (token.Length == 96)
             {
                 await Authorize();
@@ -1775,7 +1807,6 @@ end";
             {
                 toolStripStatusLabel1.Text = "Unauthorized";
             }
-
             if (is_connected)
             {
                 btnLoginLogout.BackColor = Color.Red;
@@ -1786,14 +1817,16 @@ end";
                 btnLoginLogout.BackColor = Color.Green;
                 btnLoginLogout.Text = "Login";
             }
-
         }
+        */
 
         private void button2_Click(object sender, EventArgs e)
         {
             startNewGameEngine("KENO", "bnb", "strategies/strat_keno.lua");
         }
+
     }
+
     public class lastbet
     {
         public double result { get; set; }
