@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.btnLoginLogout = new System.Windows.Forms.Button();
-            this.cbMirrorDomain = new System.Windows.Forms.ComboBoxPlus();
             this.tbApiKey = new System.Windows.Forms.TextBox();
-            this.cbCurrency = new System.Windows.Forms.ComboBoxPlus();
             this.label12 = new System.Windows.Forms.Label();
+            this.cbCurrency = new System.Windows.Forms.ComboBoxPlus();
+            this.cbMirrorDomain = new System.Windows.Forms.ComboBoxPlus();
             this.SuspendLayout();
             // 
             // btnLoginLogout
@@ -46,17 +46,6 @@
             this.btnLoginLogout.UseVisualStyleBackColor = true;
             this.btnLoginLogout.Click += new System.EventHandler(this.btnLoginLogout_Click);
             // 
-            // cbMirrorDomain
-            // 
-            this.cbMirrorDomain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbMirrorDomain.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbMirrorDomain.FormattingEnabled = true;
-            this.cbMirrorDomain.Location = new System.Drawing.Point(439, 29);
-            this.cbMirrorDomain.Name = "cbMirrorDomain";
-            this.cbMirrorDomain.Placeholder = "Select mirror domain....";
-            this.cbMirrorDomain.Size = new System.Drawing.Size(216, 21);
-            this.cbMirrorDomain.TabIndex = 11;
-            // 
             // tbApiKey
             // 
             this.tbApiKey.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -67,6 +56,15 @@
             this.tbApiKey.Size = new System.Drawing.Size(427, 20);
             this.tbApiKey.TabIndex = 9;
             this.tbApiKey.UseSystemPasswordChar = true;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(3, 9);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(45, 13);
+            this.label12.TabIndex = 10;
+            this.label12.Text = "Api key:";
             // 
             // cbCurrency
             // 
@@ -81,20 +79,22 @@
             this.cbCurrency.TabIndex = 14;
             this.cbCurrency.SelectedIndexChanged += new System.EventHandler(this.cbCurrency_SelectedIndexChanged);
             // 
-            // label12
+            // cbMirrorDomain
             // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 9);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(45, 13);
-            this.label12.TabIndex = 10;
-            this.label12.Text = "Api key:";
+            this.cbMirrorDomain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbMirrorDomain.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbMirrorDomain.FormattingEnabled = true;
+            this.cbMirrorDomain.Location = new System.Drawing.Point(439, 29);
+            this.cbMirrorDomain.Name = "cbMirrorDomain";
+            this.cbMirrorDomain.Placeholder = "Select mirror domain....";
+            this.cbMirrorDomain.Size = new System.Drawing.Size(216, 21);
+            this.cbMirrorDomain.TabIndex = 11;
             // 
             // AuthorizeControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.BackColor = System.Drawing.Color.Gray;
             this.Controls.Add(this.cbCurrency);
             this.Controls.Add(this.btnLoginLogout);
             this.Controls.Add(this.cbMirrorDomain);

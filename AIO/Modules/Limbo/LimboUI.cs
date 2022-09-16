@@ -25,9 +25,26 @@ using System.Windows.Forms;
 
 namespace AIO.Modules.Limbo
 {
-    public partial class LimboUI : Form, ICrossStrategy
+    public partial class LimboUI : Form, IGameEngine, ICrossStrategy
     {
 
+        APIClientManager APIClientManager;
+
+        //public string GameDomain
+        //{
+        //    get
+        //    {
+        //        return authorizeControl1.Domain;
+        //    }
+        //}
+
+        public string token
+        {
+            get
+            {
+                return authorizeControl1.ApiKey;
+            }
+        }
 
 
         #region CROSS STRATEGY
@@ -38,7 +55,7 @@ namespace AIO.Modules.Limbo
         {
             this.Invoke((MethodInvoker)delegate ()
             {
-                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, CurrentSite, currency, stratFile);
+                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, GameDomain, currency, stratFile);
                 //this.Close();
             });
         }
@@ -53,10 +70,6 @@ namespace AIO.Modules.Limbo
             {
                 return;
             }
-
-
-
-
         }
 
         public string ReadScriptBox()
@@ -101,7 +114,7 @@ namespace AIO.Modules.Limbo
         CartesianChart ch = new CartesianChart();
         ChartValues<ObservablePoint> data = new ChartValues<ObservablePoint>();
 
-        public string CurrentSite //= "stake.com";
+        public string GameDomain //= "stake.com";
         {
             get
             {
@@ -114,7 +127,7 @@ namespace AIO.Modules.Limbo
             }
         }
 
-        public string token = "";
+        //public string token = "";
 
         public string clientSeed = "";
         public string serverSeed = "";
@@ -178,29 +191,6 @@ namespace AIO.Modules.Limbo
 
         public lastbet last = new lastbet();
 
-        public string[] currenciesAvailable = {
-            "BTC",
-            "ETH",
-            "LTC",
-            "DOGE",
-            "BCH",
-            "XRP",
-            "TRX",
-            "EOS",
-            "BNB",
-            "USDT",
-            "APE",
-            "BUSD",
-            "CRO",
-            "DAI",
-            "LINK",
-            "SAND",
-            "SHIB",
-            "UNI",
-            "USDC"
-       };
-
-
         private bool is_connected = false;
 
         public LimboUI()
@@ -208,10 +198,6 @@ namespace AIO.Modules.Limbo
             InitializeComponent();
 
             Application.ApplicationExit += new EventHandler(Application_ApplicationExit);
-
-
-            //CommonData.FillCurrencies(currencySelector);
-            //CommonData.FillMirrors(mirrorSiteSelector);
 
             this.listView1.ItemChecked += this.listView1_ItemChecked;
             this.CommandBox2.KeyDown += this.CmdBox_KeyDown;
@@ -314,7 +300,7 @@ end";
                 return;
             }
 
-            var mainurl = "https://api." + CurrentSite + "/graphql";
+            var mainurl = "https://api." + GameDomain + "/graphql";
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -370,6 +356,7 @@ end";
             //Properties.Settings.Default.Save();
 
         }
+
         private void RegisterLua()
         {
 
@@ -379,7 +366,6 @@ end";
             lua.RegisterFunction("stop", this, new dStop(luaStop).Method);
             lua.RegisterFunction("resetseed", this, new dResetSeed(luaResetSeed).Method);
             lua.RegisterFunction("resetstats", this, new dResetStat(luaResetStat).Method);
-
 
             lua.RegisterFunction("startNewGameEngine", this, new dStartNewGameEngine(startNewGameEngine).Method);
 
@@ -564,7 +550,6 @@ end";
         //{
         //    token = apiKeyInput.Text;
         //    //Properties.Settings.Default.token = token;
-
         //}
 
         //private void currencyComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -588,7 +573,9 @@ end";
         {
             if (running == false)
             {
+
                 ready = true;
+
                 RegisterLua();
                 await CheckBalance();
 
@@ -606,6 +593,7 @@ end";
                     running = false;
                     bSta();
                 }
+
                 GetLuaVariables();
 
                 //currencySelector.SelectedIndex = Array.FindIndex(currenciesAvailable, row => row == currencySelected.ToUpper());
@@ -622,7 +610,9 @@ end";
                     authorizeControl1.CanChangeCurrency(false);
 
                     beginMs = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+
                     StartBet();
+
                 }
                 else
                 {
@@ -1089,6 +1079,8 @@ end";
 
             Time.Text = String.Format("{0} : {1} : {2}", hours, minutes, seconds);
         }
+
+
         //private void clearLinkbtn_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         //{
         //    apiKeyInput.Clear();
@@ -1187,7 +1179,7 @@ end";
             ListViewItem item = e.Item as ListViewItem;
             if (e.Item.Checked == true)
             {
-                Process.Start(new ProcessStartInfo(string.Format("https://{1}/casino/home?betId={0}&modal=bet", e.Item.Text, CurrentSite)) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(string.Format("https://{1}/casino/home?betId={0}&modal=bet", e.Item.Text, GameDomain)) { UseShellExecute = true });
             }
         }
 
@@ -1381,7 +1373,7 @@ end";
             }
         }
 
-        private async Task Authorize()
+        public async Task<bool> Authorize()
         {
             try
             {
@@ -1392,7 +1384,7 @@ end";
                 BetQuery payload = new BetQuery
                 {
                     operationName = "initialUserRequest",
-                    variables = new BetClass() { },
+                    //variables = new BetClass() { },
                     query = "query initialUserRequest {\n  user {\n    ...UserAuth\n    __typename\n  }\n}\n\nfragment UserAuth on User {\n  id\n  name\n  email\n  hasPhoneNumberVerified\n  hasEmailVerified\n  hasPassword\n  intercomHash\n  createdAt\n  hasTfaEnabled\n  mixpanelId\n  hasOauth\n  isKycBasicRequired\n  isKycExtendedRequired\n  isKycFullRequired\n  kycBasic {\n    id\n    status\n    __typename\n  }\n  kycExtended {\n    id\n    status\n    __typename\n  }\n  kycFull {\n    id\n    status\n    __typename\n  }\n  flags {\n    flag\n    __typename\n  }\n  roles {\n    name\n    __typename\n  }\n  balances {\n    ...UserBalanceFragment\n    __typename\n  }\n  activeClientSeed {\n    id\n    seed\n    __typename\n  }\n  previousServerSeed {\n    id\n    seed\n    __typename\n  }\n  activeServerSeed {\n    id\n    seedHash\n    nextSeedHash\n    nonce\n    blocked\n    __typename\n  }\n  __typename\n}\n\nfragment UserBalanceFragment on UserBalance {\n  available {\n    amount\n    currency\n    __typename\n  }\n  vault {\n    amount\n    currency\n    __typename\n  }\n  __typename\n}\n"
                 };
 
@@ -1470,6 +1462,8 @@ end";
             {
                 //luaPrint(ex.Message);
             }
+
+            return true;
         }
 
         private void Form1_Load(object sender, EventArgs e)

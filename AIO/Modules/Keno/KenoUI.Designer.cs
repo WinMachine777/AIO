@@ -823,7 +823,6 @@
             // 
             // authorizeControl1
             // 
-            this.authorizeControl1.BackColor = System.Drawing.Color.DarkGray;
             this.authorizeControl1.Location = new System.Drawing.Point(0, 0);
             this.authorizeControl1.Name = "authorizeControl1";
             this.authorizeControl1.Size = new System.Drawing.Size(800, 63);

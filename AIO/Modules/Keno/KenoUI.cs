@@ -19,14 +19,32 @@ using System.Collections;
 using System.Net;
 using AIO.Common;
 using AIO.Common.Response;
+using AIO.Common.Request;
 
 namespace AIO.Modules.Keno
 {
-    public partial class KenoUI : Form, ICrossStrategy
+    public partial class KenoUI : Form, IGameEngine, ICrossStrategy
     {
 
         #region CONNECTOR NEW
 
+        APIClientManager APIClientManager;
+
+        public string GameDomain
+        {
+            get
+            {
+                return authorizeControl1.Domain;
+            }
+        }
+
+        public string token
+        {
+            get
+            {
+                return authorizeControl1.ApiKey;
+            }
+        }
 
         #endregion
 
@@ -39,7 +57,7 @@ namespace AIO.Modules.Keno
         {
             this.Invoke((MethodInvoker)delegate ()
             {
-                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, StakeSite, currency, stratFile);
+                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, GameDomain, currency, stratFile);
                 //this.Close();
             });
         }
@@ -91,8 +109,8 @@ namespace AIO.Modules.Keno
 
 
 
-        public CookieContainer cc;
-        RestClient SharedRestClient;
+       // public CookieContainer cc;
+        //RestClient SharedRestClient;
 
 
         public List<int> StratergyArray = new List<int>();
@@ -109,8 +127,8 @@ namespace AIO.Modules.Keno
         delegate void dResetSeed();
         delegate void dResetStat();
 
-        public string StakeSite = "stake.com";
-        public string token = "";
+        //public string GameDomain = "stake.com";
+        //public string token = "";
 
         public bool running = false;
         public static KenoUI initForm;
@@ -539,59 +557,63 @@ end";
 
         }
 
-        private void CreateOrUseDefaultRestClient(bool dispose = false)
-        {
-            if (dispose == true)
-            {
-                SharedRestClient = null;
-                cc = null;
-            }
+        //private void CreateOrUseDefaultRestClient(bool dispose = false)
+        //{
+        //    if (dispose == true)
+        //    {
+        //        SharedRestClient = null;
+        //        cc = null;
+        //    }
 
-            if (SharedRestClient != null)
-            {
-                return;
-            }
+        //    if (SharedRestClient != null)
+        //    {
+        //        return;
+        //    }
 
-            var mainurl = "https://api." + StakeSite + "/graphql";
+        //    var mainurl = "https://api." + GameDomain + "/graphql";
 
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+        //    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-            this.cc = new CookieContainer();
+        //    this.cc = new CookieContainer();
 
-            SharedRestClient = new RestClient();
-            SharedRestClient.BaseUrl = new Uri(mainurl);
-            SharedRestClient.CookieContainer = this.cc;
-            SharedRestClient.UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36";
-        }
+        //    SharedRestClient = new RestClient();
+        //    SharedRestClient.BaseUrl = new Uri(mainurl);
+        //    SharedRestClient.CookieContainer = this.cc;
+        //    SharedRestClient.UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36";
+        //}
 
-        private RestRequest CreateDefaultRestRequest(string apiKey)
-        {
-            RestRequest restRequest = new RestRequest(Method.POST);
-            restRequest.AddHeader("authorization", string.Format("Bearer {0}", apiKey));
-            restRequest.AddHeader("x-access-token", apiKey);
-            restRequest.AddHeader("Content-type", "application/json");
-            return restRequest;
-        }
+        //private RestRequest CreateDefaultRestRequest(string apiKey)
+        //{
+        //    RestRequest restRequest = new RestRequest(Method.POST);
+        //    restRequest.AddHeader("authorization", string.Format("Bearer {0}", apiKey));
+        //    restRequest.AddHeader("x-access-token", apiKey);
+        //    restRequest.AddHeader("Content-type", "application/json");
+        //    return restRequest;
+        //}
 
-        private async Task Authorize()
+
+        public async Task<bool> Authorize()
+        //public async Task Authorize()
         {
             try
             {
 
-                CreateOrUseDefaultRestClient(true);
+                var restResponse = await APIClientManager.Authorize();
 
-                var payload = new BetQuery
-                {
-                    operationName = "initialUserRequest",
-                    variables = new BetClass() { },
-                    query = "query initialUserRequest {\n  user {\n    ...UserAuth\n    __typename\n  }\n}\n\nfragment UserAuth on User {\n  id\n  name\n  email\n  hasPhoneNumberVerified\n  hasEmailVerified\n  hasPassword\n  intercomHash\n  createdAt\n  hasTfaEnabled\n  mixpanelId\n  hasOauth\n  isKycBasicRequired\n  isKycExtendedRequired\n  isKycFullRequired\n  kycBasic {\n    id\n    status\n    __typename\n  }\n  kycExtended {\n    id\n    status\n    __typename\n  }\n  kycFull {\n    id\n    status\n    __typename\n  }\n  flags {\n    flag\n    __typename\n  }\n  roles {\n    name\n    __typename\n  }\n  balances {\n    ...UserBalanceFragment\n    __typename\n  }\n  activeClientSeed {\n    id\n    seed\n    __typename\n  }\n  previousServerSeed {\n    id\n    seed\n    __typename\n  }\n  activeServerSeed {\n    id\n    seedHash\n    nextSeedHash\n    nonce\n    blocked\n    __typename\n  }\n  __typename\n}\n\nfragment UserBalanceFragment on UserBalance {\n  available {\n    amount\n    currency\n    __typename\n  }\n  vault {\n    amount\n    currency\n    __typename\n  }\n  __typename\n}\n"
-                };
+                //CreateOrUseDefaultRestClient(true);
 
-                var request = CreateDefaultRestRequest(token);
+                //var payload = new BetQuery
+                //{
+                //    operationName = "initialUserRequest",
+                //    // variables = new BetClass() { },
+                //    query = "query initialUserRequest {\n  user {\n    ...UserAuth\n    __typename\n  }\n}\n\nfragment UserAuth on User {\n  id\n  name\n  email\n  hasPhoneNumberVerified\n  hasEmailVerified\n  hasPassword\n  intercomHash\n  createdAt\n  hasTfaEnabled\n  mixpanelId\n  hasOauth\n  isKycBasicRequired\n  isKycExtendedRequired\n  isKycFullRequired\n  kycBasic {\n    id\n    status\n    __typename\n  }\n  kycExtended {\n    id\n    status\n    __typename\n  }\n  kycFull {\n    id\n    status\n    __typename\n  }\n  flags {\n    flag\n    __typename\n  }\n  roles {\n    name\n    __typename\n  }\n  balances {\n    ...UserBalanceFragment\n    __typename\n  }\n  activeClientSeed {\n    id\n    seed\n    __typename\n  }\n  previousServerSeed {\n    id\n    seed\n    __typename\n  }\n  activeServerSeed {\n    id\n    seedHash\n    nextSeedHash\n    nonce\n    blocked\n    __typename\n  }\n  __typename\n}\n\nfragment UserBalanceFragment on UserBalance {\n  available {\n    amount\n    currency\n    __typename\n  }\n  vault {\n    amount\n    currency\n    __typename\n  }\n  __typename\n}\n"
+                //};
 
-                request.AddJsonBody(payload);
+                //var request = CreateDefaultRestRequest(token);
 
-                var restResponse = await SharedRestClient.ExecuteAsync(request);
+                //request.AddJsonBody(payload);
+
+                //var restResponse = await SharedRestClient.ExecuteAsync(request);
 
 
                 // Will output the HTML contents of the requested page
@@ -648,13 +670,15 @@ end";
             {
                 //luaPrint(ex.Message);
             }
+
+            return true;
         }
 
         private async Task ResetSeeds()
         {
             try
             {
-
+                /*
                 CreateOrUseDefaultRestClient();
 
                 BetQuery payload = new BetQuery
@@ -670,8 +694,11 @@ end";
                 var request = CreateDefaultRestRequest(token);
 
                 request.AddJsonBody(payload);
+                */
 
-                var restResponse = await SharedRestClient.ExecuteAsync(request);
+                var restResponse = await APIClientManager.ResetSeeds();
+
+                //var restResponse = await SharedRestClient.ExecuteAsync(request);
 
                 // Will output the HTML contents of the requested page
                 //Debug.WriteLine(restResponse.Content);
@@ -701,30 +728,12 @@ end";
             try
             {
 
-                CreateOrUseDefaultRestClient();
+                var restResponse = await APIClientManager.SendToVault(currencySelected,sentamount);
 
-                BetQuery payload = new BetQuery
-                {
-                    operationName = "CreateVaultDeposit",
-                    variables = new BetClass()
-                    {
-                        currency = currencySelected.ToLower(),
-                        amount = sentamount
-                    },
-                    query = "mutation CreateVaultDeposit($currency: CurrencyEnum!, $amount: Float!) {\n  createVaultDeposit(currency: $currency, amount: $amount) {\n    id\n    amount\n    currency\n    user {\n      id\n      balances {\n        available {\n          amount\n          currency\n          __typename\n        }\n        vault {\n          amount\n          currency\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
-                };
-
-                var request = CreateDefaultRestRequest(token);
-
-                request.AddJsonBody(payload);
-
-                var restResponse = await SharedRestClient.ExecuteAsync(request);
-
-
-                // Will output the HTML contents of the requested page
-                //Debug.WriteLine(restResponse.Content);
                 Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
+
                 //System.Diagnostics.Debug.WriteLine(restResponse.Content);
+
                 if (response.errors != null)
                 {
                     luaPrint(response.errors[0].message);
@@ -735,7 +744,6 @@ end";
                     {
                         luaPrint(string.Format("Deposited to vault: {0} {1}", sentamount.ToString("0.00000000"), currencySelected));
                     }
-
                 }
             }
             catch (Exception ex)
@@ -749,24 +757,22 @@ end";
             try
             {
 
+                /*
                 CreateOrUseDefaultRestClient();
-
                 BetQuery payload = new BetQuery
                 {
                     operationName = "UserBalances",
                     query = "query UserBalances {\n  user {\n    id\n    balances {\n      available {\n        amount\n        currency\n        __typename\n      }\n      vault {\n        amount\n        currency\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
                 };
-
                 var request = CreateDefaultRestRequest(token);
-
                 request.AddJsonBody(payload);
-
                 var restResponse = await SharedRestClient.ExecuteAsync(request);
+                */
 
+                var restResponse = await APIClientManager.CheckBalance();
 
                 //Debug.WriteLine(restResponse.Content);
                 BalancesData response = JsonConvert.DeserializeObject<BalancesData>(restResponse.Content);
-
 
                 if (response.errors != null)
                 {
@@ -826,8 +832,6 @@ end";
                 if (running)
                 {
 
-                    CreateOrUseDefaultRestClient();
-
                     BetQuery payload = new BetQuery
                     {
                         variables = new BetClass()
@@ -842,12 +846,13 @@ end";
                         query = "mutation KenoBet($amount: Float!, $currency: CurrencyEnum!, $numbers: [Int!]!, $identifier: String!, $risk: CasinoGameKenoRiskEnum) {\n  kenoBet(\n    amount: $amount\n    currency: $currency\n    numbers: $numbers\n    risk: $risk\n    identifier: $identifier\n  ) {\n    ...CasinoBet\n    state {\n      ...CasinoGameKeno\n    }\n  }\n}\n\nfragment CasinoBet on CasinoBet {\n  id\n  active\n  payoutMultiplier\n  amountMultiplier\n  amount\n  payout\n  updatedAt\n  currency\n  game\n  user {\n    id\n    name\n  }\n}\n\nfragment CasinoGameKeno on CasinoGameKeno {\n  drawnNumbers\n  selectedNumbers\n  risk\n}\n"
                     };
 
+                    /*
                     var request = CreateDefaultRestRequest(token);
-
                     request.AddJsonBody(payload);
-
-
                     var restResponse = await SharedRestClient.ExecuteAsync(request);
+                    var restResponse = await APIClientManager.PlaceRouletteBet();
+                    */
+                    var restResponse = await APIClientManager.PlaceKenoBet(payload);
 
                     //label4.Text = restResponse.Content;
 
@@ -898,7 +903,8 @@ end";
                         }
 
                         Log(response);
-                        CheckBalance(false);
+
+                        await CheckBalance(false);
 
                         currentProfit += response.data.kenoBet.payout - response.data.kenoBet.amount;
                         profitLabel.Text = currentProfit.ToString("0.00000000");
@@ -933,25 +939,20 @@ end";
                         xList.Add(counter);
                         yList.Add((double)currentProfit);
 
-
-
                         data.Add(new ObservablePoint
                         {
                             X = xList[xList.Count - 1],
                             Y = yList[yList.Count - 1]
                         });
 
-
                         if (data.Count > 30)
                         {
                             data.RemoveAt(0);
                             xList.RemoveAt(0);
                             yList.RemoveAt(0);
-
                         }
                         if (showRes)
                         {
-
                             ShowResult(response.data.kenoBet.state.drawnNumbers, response.data.kenoBet.state.selectedNumbers);
                         }
                         else
@@ -1014,7 +1015,7 @@ end";
             if (e.Item.Checked == true)
             {
                 //MessageBox.Show(e.Item.Text);
-                Process.Start(new ProcessStartInfo(string.Format("https://{1}/casino/home?betId={0}&modal=bet", e.Item.Text, StakeSite)) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(string.Format("https://{1}/casino/home?betId={0}&modal=bet", e.Item.Text, GameDomain)) { UseShellExecute = true });
             }
         }
         void ShowResult(List<int> result, List<int> selected)
@@ -1286,6 +1287,8 @@ end";
         {
 
         }
+
+
     }
 
     public class riskLow

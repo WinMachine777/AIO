@@ -22,13 +22,29 @@ using AIO.Common.Request;
 
 namespace AIO.Modules.Roulette
 {
-    public partial class RouletteUI : Form, ICrossStrategy
+    public partial class RouletteUI : Form,IGameEngine, ICrossStrategy
     {
 
         //public CookieContainer cc;
         //RestClient SharedRestClient;
 
         APIClientManager APIClientManager;
+
+        public string GameDomain
+        {
+            get
+            {
+                return authorizeControl1.Domain;
+            }
+        }
+
+        public string token
+        {
+            get
+            {
+                return authorizeControl1.ApiKey;
+            }
+        }
 
         #region CROSS STRATEGY
 
@@ -38,7 +54,7 @@ namespace AIO.Modules.Roulette
         {
             this.Invoke((MethodInvoker)delegate ()
             {
-                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, StakeSite, currency, stratFile);
+                (this.Owner as Dashboard).OpenNewGameEngine(this, game, token, GameDomain, currency, stratFile);
                 //this.Close();
             });
         }
@@ -48,7 +64,10 @@ namespace AIO.Modules.Roulette
         {
             InitializeComponent();
             this.Show(source as Form);
-
+            if (game == null || apiKey == null || mirror == null || currency == null || stratFile == null)
+            {
+                return;
+            }
         }
 
 
@@ -139,8 +158,7 @@ namespace AIO.Modules.Roulette
         };
 
 
-        public string StakeSite = "stake.com";
-        public string token = "";
+
 
         public string clientSeed = "";
         public string serverSeed = "";
@@ -153,7 +171,20 @@ namespace AIO.Modules.Roulette
         public bool sim = false;
         public int counter = 0;
 
-        public string currencySelected = "btc";
+        public string currencySelected
+        {
+            get
+            {
+                return authorizeControl1.Currency;                    
+            }
+            set
+            {
+                authorizeControl1.SetCurrency(value);
+            }
+        }
+
+
+
         public double target = 0;
         public decimal BaseBet = 0;
         public decimal amount = 0;
@@ -182,9 +213,6 @@ namespace AIO.Modules.Roulette
         public List<Values> range = new List<Values> { };
         public List<Values> row = new List<Values> { };
 
-        public string[] currenciesAvailable = CommonData.CurrenciesAvailable; //{ "BTC", "ETH", "LTC", "DOGE", "XRP", "BCH", "TRX", "EOS" };
-
-
         private bool is_connected = false;
 
         public RouletteUI()
@@ -192,12 +220,7 @@ namespace AIO.Modules.Roulette
 
             authorizeControl1 = new AuthorizeControl();
 
-
             InitializeComponent();
-
-            //CommonData.FillCurrencies(comboBox1);
-            //CommonData.FillMirrors(SiteComboBox2);
-
 
             Application.ApplicationExit += new EventHandler(Application_ApplicationExit);
 
@@ -1178,7 +1201,7 @@ namespace AIO.Modules.Roulette
             ListViewItem item = e.Item as ListViewItem;
             if (e.Item.Checked == true)
             {
-                Process.Start(new ProcessStartInfo(string.Format("https://{1}/casino/home?betId={0}&modal=bet", e.Item.Text, StakeSite)) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(string.Format("https://{1}/casino/home?betId={0}&modal=bet", e.Item.Text, GameDomain)) { UseShellExecute = true });
             }
         }
 
@@ -1286,18 +1309,15 @@ namespace AIO.Modules.Roulette
             }
         }
 
-        private async Task Authorize()
+        public async Task<bool> Authorize()
         {
             try
             {
 
                 var restResponse = await APIClientManager.Authorize();
 
-                // Will output the HTML contents of the requested page
-                //Debug.WriteLine(restResponse.Content);
                 ActiveData response = JsonConvert.DeserializeObject<ActiveData>(restResponse.Content);
 
-                //System.Diagnostics.Debug.WriteLine(restResponse.Content);
                 if (response.errors != null)
                 {
                     toolStripStatusLabel1.Text = "Disconnected";
@@ -1318,25 +1338,9 @@ namespace AIO.Modules.Roulette
                                 currentBal = response.data.user.balances[i].available.amount;
                                 balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
                             }
-
-                            //currencySelect.Items.Clear();
-                            //if (true)
-                            //{
-                            //    //authorizeControl1.SyncCurrencies(response.data.user.balances);
-                            //    for (int s = 0; s < currenciesAvailable.Length; s++)
-                            //    {
-                            //        if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
-                            //        {
-                            //            comboBox1.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
-                            //            //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
-                            //            break;
-                            //        }
-                            //    }
-                            //}
                         }
 
                         authorizeControl1.SyncCurrencies(response.data.user.balances);
-
 
                     }
 
@@ -1346,6 +1350,8 @@ namespace AIO.Modules.Roulette
             {
                 //luaPrint(ex.Message);
             }
+
+            return true;
         }
 
         private void Form1_Load(object sender, EventArgs e)

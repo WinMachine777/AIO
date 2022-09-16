@@ -241,6 +241,72 @@ namespace AIO.Common.Request
                 return null;
             }
         }
+        public async Task<IRestResponse> PlaceKenoBet(BetQuery payload)
+        {
+            try
+            {
+
+                CreateOrUseDefaultRestClient();
+
+                var request = CreateDefaultRestRequest(ApiKey);
+
+                request.AddJsonBody(payload);
+
+                var restResponse = await SharedRestClient.ExecuteAsync(request);
+
+                return restResponse;
+
+            }
+            catch (Exception ex)
+            {
+                //luaPrint(ex.Message);
+                return null;
+            }
+        }
+        public async Task<IRestResponse> PlaceLimboBet(BetQuery payload)
+        {
+            try
+            {
+
+                CreateOrUseDefaultRestClient();
+
+                var request = CreateDefaultRestRequest(ApiKey);
+
+                request.AddJsonBody(payload);
+
+                var restResponse = await SharedRestClient.ExecuteAsync(request);
+
+                return restResponse;
+
+            }
+            catch (Exception ex)
+            {
+                //luaPrint(ex.Message);
+                return null;
+            }
+        }
+
+        public async Task<IRestResponse> PlaceDiceBet(BetQuery payload)
+        {
+            try
+            {
+                CreateOrUseDefaultRestClient();
+
+                var request = CreateDefaultRestRequest(ApiKey);
+
+                request.AddJsonBody(payload);
+
+                var restResponse = await SharedRestClient.ExecuteAsync(request);
+
+                return restResponse;
+
+            }
+            catch (Exception ex)
+            {
+                //luaPrint(ex.Message);
+                return null;
+            }
+        }
 
         public async Task<IRestResponse> ResetSeeds()
         {

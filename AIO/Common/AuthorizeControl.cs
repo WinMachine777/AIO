@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.ComponentModel.Design;
 using AIO.Common.Response;
+using AIO.Modules;
 
 namespace AIO.Common
 {
@@ -153,7 +154,6 @@ namespace AIO.Common
             //{
             //    // Connect();
             //    //await Authorize();
-
             //}
             //else
             //{
@@ -164,6 +164,8 @@ namespace AIO.Common
         private void btnLoginLogout_Click(object sender, EventArgs e)
         {
             //this.
+
+            (this.ParentForm as IGameEngine).Authorize();
         }
 
         private void cbCurrency_SelectedIndexChanged(object sender, EventArgs e)
