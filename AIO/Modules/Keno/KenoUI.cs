@@ -169,7 +169,7 @@ namespace AIO.Modules.Keno
 
         public lastbet last = new lastbet();
 
-        public string[] currenciesAvailable = CommonData.CurrenciesAvailable;
+        public string[] currenciesAvailable = Utils.CurrenciesAvailable;
         //public string[] currenciesAvailable = { "BTC", "ETH", "LTC", "DOGE", "XRP", "BCH", "TRX", "EOS" };
 
         CartesianChart ch = new CartesianChart();

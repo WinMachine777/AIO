@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.ComponentModel.Design;
 using AIO.Common.Response;
 using AIO.Modules;
+using System.Configuration;
 
 namespace AIO.Common
 {
@@ -17,21 +18,11 @@ namespace AIO.Common
     public partial class AuthorizeControl : UserControl
     {
 
-        // private const int CB_SETCUEBANNER = 0x1703;
-        // [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        // private static extern int SetPlaceholder(IntPtr hWnd, int msg, int wParam, [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)] string lParam);
-
         public AuthorizeControl()
         {
             InitializeComponent();
-
-            // SetPlaceholder(this.cbMirrorDomain.Handle, CB_SETCUEBANNER, 0, "Please select an item...");
-            // SetPlaceholder(this.cbCurrency.Handle, CB_SETCUEBANNER, 0, "Please select an item...");
-
-            CommonData.FillMirrors(cbMirrorDomain);
-            CommonData.FillCurrencies(cbCurrency);
-
-
+            Utils.FillMirrors(cbMirrorDomain);
+            Utils.FillCurrencies(cbCurrency);
         }
 
         public string ApiKey
@@ -85,14 +76,11 @@ namespace AIO.Common
             }
         }
 
-        public void ChangeCurrency(string currency)
-        {
-
-            Currency = currency;
-
-            // comboBox1.SelectedIndex = Array.FindIndex(currenciesAvailable, row => row == currencySelected.ToUpper());
-
-        }
+        //public void ChangeCurrency(string currency)
+        //{
+        //    Currency = currency;
+        //    // comboBox1.SelectedIndex = Array.FindIndex(currenciesAvailable, row => row == currencySelected.ToUpper());
+        //}
 
         public void CanChangeAuthorization(bool state = true)
         {
@@ -146,25 +134,36 @@ namespace AIO.Common
 
 
 
-        private async void tbApiKey_TextChanged(object sender, EventArgs e)
+        //private async void tbApiKey_TextChanged(object sender, EventArgs e)
+        //{
+        //    //token = textBox1.Text;
+        //    ////Properties.Settings.Default.token = token;
+        //    if (token.Length == 96)
+        //    {
+        //        // Connect();
+        //        //await Authorize();
+        //    }
+        //    else
+        //    {
+        //        toolStripStatusLabel1.Text = "Disconnected";
+        //    }
+        //}
+
+
+        private void tbApiKey_TextChanged_1(object sender, EventArgs e)
         {
-            //token = textBox1.Text;
-            ////Properties.Settings.Default.token = token;
-            //if (token.Length == 96)
-            //{
-            //    // Connect();
-            //    //await Authorize();
-            //}
-            //else
-            //{
-            //    toolStripStatusLabel1.Text = "Disconnected";
-            //}
+            if (ApiKey.Length == 96)
+            {
+                cbMirrorDomain.Enabled = true;
+            }
+            else
+            {
+                cbMirrorDomain.Enabled = false;
+            }
         }
 
         private void btnLoginLogout_Click(object sender, EventArgs e)
         {
-            //this.
-
             (this.ParentForm as IGameEngine).Authorize();
         }
 
@@ -179,5 +178,7 @@ namespace AIO.Common
             cbMirrorDomain.Enabled = !state;
             cbCurrency.Enabled = !state;
         }
+
+
     }
 }

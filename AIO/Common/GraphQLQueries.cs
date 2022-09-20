@@ -144,25 +144,26 @@ namespace AIO.Common.Request
             try
             {
 
-                BetQuery payload = new BetQuery
-                {
-                    variables = new BetClass()
-                    {
-                        seed = RandomString(10)
+                //BetQuery payload = new BetQuery
+                //{
+                //    variables = new BetClass()
+                //    {
+                //        seed = RandomString(10)
 
-                    },
-                    query = "mutation RotateSeedPair($seed: String!) {\n  rotateSeedPair(seed: $seed) {\n    clientSeed {\n      user {\n        id\n        activeClientSeed {\n          id\n          seed\n          __typename\n        }\n        activeServerSeed {\n          id\n          nonce\n          seedHash\n          nextSeedHash\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
-                };
+                //    },
+                //    query = "mutation RotateSeedPair($seed: String!) {\n  rotateSeedPair(seed: $seed) {\n    clientSeed {\n      user {\n        id\n        activeClientSeed {\n          id\n          seed\n          __typename\n        }\n        activeServerSeed {\n          id\n          nonce\n          seedHash\n          nextSeedHash\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
+                //};
 
-                CreateOrUseDefaultRestClient();
+                //CreateOrUseDefaultRestClient();
 
-                var request = CreateDefaultRestRequest(ApiKey);
+                //var request = CreateDefaultRestRequest(ApiKey);
 
-                request.AddJsonBody(payload);
+                //request.AddJsonBody(payload);
 
-                var restResponse = await SharedRestClient.ExecuteAsync(request);
+                //var restResponse = await SharedRestClient.ExecuteAsync(request);
 
-                return restResponse;
+                //return restResponse;
+                throw new NotImplementedException();
 
             }
             catch (Exception ex)
@@ -202,6 +203,8 @@ namespace AIO.Common.Request
             }
 
         }
+
+
 
         public async Task<IRestResponse> PlaceRouletteBet(string currencySelected)
         {
@@ -285,7 +288,6 @@ namespace AIO.Common.Request
                 return null;
             }
         }
-
         public async Task<IRestResponse> PlaceDiceBet(BetQuery payload)
         {
             try
@@ -307,6 +309,9 @@ namespace AIO.Common.Request
                 return null;
             }
         }
+
+
+
 
         public async Task<IRestResponse> ResetSeeds()
         {

@@ -1,10 +1,24 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace AIO.Common
 {
-    public partial class CommonData
+
+
+
+    public partial class Utils
     {
+
+
+        public static string RandomString(int length)
+        {
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+
 
         public static void FillCurrencies(ComboBox combo)
         {
@@ -12,7 +26,7 @@ namespace AIO.Common
 
             combo.Items.Clear();
 
-            foreach (var item in CommonData.CurrenciesAvailable.OrderBy(x => x))
+            foreach (var item in Utils.CurrenciesAvailable.OrderBy(x => x))
             {
                 combo.Items.Add(item.ToUpperInvariant());
             }
@@ -56,13 +70,14 @@ namespace AIO.Common
         "Stake.icu",
         "Stake.us"
        };
+
         public static void FillMirrors(ComboBox combo)
         {
             // fill currency combobox
 
             combo.Items.Clear();
 
-            foreach (var item in CommonData.MirrorsAvailable.OrderBy(x => x))
+            foreach (var item in Utils.MirrorsAvailable.OrderBy(x => x))
             {
                 combo.Items.Add(item.ToUpperInvariant());
             }

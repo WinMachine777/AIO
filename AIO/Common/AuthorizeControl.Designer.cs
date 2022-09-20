@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.btnLoginLogout = new System.Windows.Forms.Button();
-            this.tbApiKey = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
+            this.tbApiKey = new System.Windows.Forms.TextBox();
             this.cbCurrency = new System.Windows.Forms.ComboBoxPlus();
             this.cbMirrorDomain = new System.Windows.Forms.ComboBoxPlus();
             this.SuspendLayout();
@@ -46,6 +46,15 @@
             this.btnLoginLogout.UseVisualStyleBackColor = true;
             this.btnLoginLogout.Click += new System.EventHandler(this.btnLoginLogout_Click);
             // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(3, 9);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(45, 13);
+            this.label12.TabIndex = 10;
+            this.label12.Text = "Api key:";
+            // 
             // tbApiKey
             // 
             this.tbApiKey.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -56,15 +65,7 @@
             this.tbApiKey.Size = new System.Drawing.Size(427, 20);
             this.tbApiKey.TabIndex = 9;
             this.tbApiKey.UseSystemPasswordChar = true;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 9);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(45, 13);
-            this.label12.TabIndex = 10;
-            this.label12.Text = "Api key:";
+            this.tbApiKey.TextChanged += new System.EventHandler(this.tbApiKey_TextChanged_1);
             // 
             // cbCurrency
             // 
@@ -94,7 +95,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Gray;
+            this.BackColor = System.Drawing.Color.Salmon;
             this.Controls.Add(this.cbCurrency);
             this.Controls.Add(this.btnLoginLogout);
             this.Controls.Add(this.cbMirrorDomain);

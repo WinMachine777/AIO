@@ -29,11 +29,13 @@ namespace AIO.Common.Response
         public List<int> numbers { get; set; }
         public double multiplierTarget { get; set; }
     }
+
     public partial class Card
     {
         public string rank { get; set; }
         public string suit { get; set; }
     }
+
     public partial class Data
     {
         public availableBalances availableBalances { get; set; }
@@ -42,6 +44,7 @@ namespace AIO.Common.Response
         public Betdata data { get; set; }
         public List<Errors> errors { get; set; }
     }
+
     public class Errors
     {
         public List<string> path { get; set; }
@@ -55,10 +58,12 @@ namespace AIO.Common.Response
         public User data { get; set; }
         public List<Errors> errors { get; set; }
     }
+
     public partial class User
     {
         public Active user { get; set; }
     }
+
     public partial class Active
     {
         public string id { get; set; }
@@ -66,15 +71,18 @@ namespace AIO.Common.Response
         public limboBet activeCasinoBet { get; set; }
         public List<Balances> balances { get; set; }
     }
+
     public partial class Balances
     {
         public Available available { get; set; }
     }
+
     public partial class Available
     {
         public decimal amount { get; set; }
         public string currency { get; set; }
     }
+
     public partial class Betdata
     {
         public limboBet limboBet { get; set; }
@@ -83,6 +91,7 @@ namespace AIO.Common.Response
         public object rotateSeedPair { get; set; }
         public object createVaultDeposit { get; set; }
     }
+
     public partial class State
     {
         public List<int> drawnNumbers { get; set; }
@@ -92,19 +101,18 @@ namespace AIO.Common.Response
 
     }
 
-
-
     public partial class Rounds
     {
         public int field { get; set; }
         public double payoutMultiplier { get; set; }
-
     }
+
     public partial class BalancesData
     {
         public User data { get; set; }
         public List<Errors> errors { get; set; }
     }
+
     public partial class messageData
     {
         public messageData() => this.payload = new messagePayload();
@@ -132,13 +140,10 @@ namespace AIO.Common.Response
         }
     }
 
-
-
     public partial class context
     {
         public string url { get; set; }
     }
-
 
     public partial class chatMessages
     {
@@ -150,13 +155,13 @@ namespace AIO.Common.Response
     public partial class ChatData
     {
         public string message { get; set; }
-
     }
+
     public partial class ChatUser
     {
         public string name { get; set; }
-
     }
+
     public partial class availableBalances
     {
         public decimal amount { get; set; }

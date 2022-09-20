@@ -123,6 +123,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Common\AIOSettings.cs" />
     <Compile Include="Common\AuthorizeControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -132,8 +133,18 @@
     <Compile Include="Common\ComboBoxPlus.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Common\CommonData.cs" />
+    <Compile Include="Common\Utils.cs" />
+    <Compile Include="Common\UserControl1.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Common\UserControl1.Designer.cs">
+      <DependentUpon>UserControl1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Modules\Dice\DiceSettings.cs" />
     <Compile Include="Common\GraphQLQueries.cs" />
+    <Compile Include="Modules\Keno\KenoSettings.cs" />
+    <Compile Include="Modules\Limbo\LimboSettings.cs" />
+    <Compile Include="Modules\Roulette\RouletteSettings.cs" />
     <Compile Include="Common\schema.cs" />
     <Compile Include="Dashboard.cs">
       <SubType>Form</SubType>

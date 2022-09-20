@@ -656,7 +656,7 @@ namespace AIO.Modules.Roulette
 
                 GetLuaVariables();
 
-                authorizeControl1.ChangeCurrency(currencySelected);
+                authorizeControl1.SetCurrency(currencySelected);
 
                 if (ready == true)
                 {
@@ -1215,17 +1215,15 @@ namespace AIO.Modules.Roulette
 
 
 
-        private async Task VaultSend(decimal sentamount)
+        private async Task VaultSend(decimal amount)
         {
             try
             {
 
-                var restResponse = await APIClientManager.SendToVault(currencySelected, sentamount);
+                var restResponse = await APIClientManager.SendToVault(currencySelected, amount);
 
-                // Will output the HTML contents of the requested page
-                //Debug.WriteLine(restResponse.Content);
                 Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
-                //System.Diagnostics.Debug.WriteLine(restResponse.Content);
+
                 if (response.errors != null)
                 {
                     luaPrint(response.errors[0].errorType + ":" + response.errors[0].message);
@@ -1234,9 +1232,8 @@ namespace AIO.Modules.Roulette
                 {
                     if (response.data != null)
                     {
-                        luaPrint(string.Format("Deposited to vault: {0} {1}", sentamount.ToString("0.00000000"), currencySelected));
+                        luaPrint(string.Format("Deposited to vault: {0} {1}", amount.ToString("0.00000000"), currencySelected));
                     }
-
                 }
             }
             catch (Exception ex)

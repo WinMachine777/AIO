@@ -25,18 +25,20 @@ using System.Windows.Forms;
 
 namespace AIO.Modules.Limbo
 {
+
+
+    //public sealed class GenericUI : Form
+    //{
+
+    //    public APIClientManager APIClientManager;
+
+
+    //}
+
     public partial class LimboUI : Form, IGameEngine, ICrossStrategy
     {
 
         APIClientManager APIClientManager;
-
-        //public string GameDomain
-        //{
-        //    get
-        //    {
-        //        return authorizeControl1.Domain;
-        //    }
-        //}
 
         public string token
         {
@@ -85,8 +87,8 @@ namespace AIO.Modules.Limbo
 
         #endregion
 
-        public CookieContainer cc;
-        RestClient SharedRestClient;
+       // public CookieContainer cc;
+       // RestClient SharedRestClient;
 
 
         //private WebSocket chat_socket { get; set; }
@@ -140,7 +142,18 @@ namespace AIO.Modules.Limbo
         public bool sim = false;
         public int counter = 0;
 
-        public string currencySelected = "btc";
+        public string currencySelected
+        {
+            get
+            {
+                return authorizeControl1.Currency;
+            }
+            set
+            {
+                authorizeControl1.SetCurrency(value);
+            }
+        }
+
         public double target = 0;
         public decimal BaseBet = 0;
         public decimal amount = 0;
@@ -275,6 +288,9 @@ function dobet()
     end
 end";
 
+
+            APIClientManager = new APIClientManager();
+
         }
 
         public LimboUI(Form parent)
@@ -282,7 +298,7 @@ end";
 
         }
 
-
+        /*
         /// <summary>
         /// CreateOrUseDefaultRestClient
         /// </summary>
@@ -325,7 +341,7 @@ end";
             restRequest.AddHeader("Content-type", "application/json");
             return restRequest;
         }
-
+        */
 
 
 
@@ -408,14 +424,15 @@ end";
             catch (Exception e)
             {
                 ready = false;
-                bSta();
+                DoStop();
                 luaPrint("Please set 'nextbet = x' and 'target = x' variable on top of script.");
             }
 
 
 
         }
-        public void bSta()
+
+        public void DoStop()
         {
             running = false;
             button1.Enabled = true;
@@ -461,7 +478,7 @@ end";
                 luaPrint("Called stop.");
                 running = false;
                 sim = false;
-                bSta();
+                DoStop();
             });
 
         }
@@ -523,10 +540,6 @@ end";
             });
         }
 
-
-
-
-
         private void LogButton_Click(object sender, EventArgs e)
         {
             if (LogButton.Text.Contains(">"))
@@ -545,29 +558,6 @@ end";
                 LogButton.Text = "Log >";
             }
         }
-
-        //private async void textBox1_TextChanged(object sender, EventArgs e)
-        //{
-        //    token = apiKeyInput.Text;
-        //    //Properties.Settings.Default.token = token;
-        //}
-
-        //private void currencyComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        //{
-        //    //currencySelected = currenciesAvailable[currencySelector.SelectedIndex].ToLower();
-        //    ////Properties.Settings.Default.indexCurrency = currencySelector.SelectedIndex;
-        //    //string[] current = currencySelector.Text.Split(' ');
-        //    //if (current.Length > 1)
-        //    //{
-        //    //    balanceLabel.Text = current[1] + " " + currencySelected;
-        //    //}
-        //}
-
-        //private void SiteComboBox2_SelectedIndexChanged(object sender, EventArgs e)
-        //{
-        //    CurrentSite = mirrorSiteSelector.Text.ToLower();
-        //    //Properties.Settings.Default.indexSite = mirrorSiteSelector.SelectedIndex;
-        //}
 
         private async void button1_Click(object sender, EventArgs e)
         {
@@ -591,14 +581,12 @@ end";
                     luaPrint("Lua ERROR!!");
                     luaPrint(ex.Message);
                     running = false;
-                    bSta();
+                    DoStop();
                 }
 
                 GetLuaVariables();
 
-                //currencySelector.SelectedIndex = Array.FindIndex(currenciesAvailable, row => row == currencySelected.ToUpper());
-
-                authorizeControl1.ChangeCurrency(currencySelected);
+                authorizeControl1.SetCurrency(currencySelected);
 
                 if (ready == true)
                 {
@@ -611,22 +599,22 @@ end";
 
                     beginMs = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
 
-                    StartBet();
+                    DoRunning();
 
                 }
                 else
                 {
-                    bSta();
+                    DoStop();
                 }
 
             }
             else
             {
                 running = false;
-                bSta();
+                DoStop();
             }
         }
-        async Task StartBet()
+        async Task DoRunning()
         {
             while (running == true)
             {
@@ -861,57 +849,44 @@ end";
                             currency = currencySelected,
                             amount = amount,
                             multiplierTarget = target,
-                            identifier = RandomString(21)
+                            identifier = Utils.RandomString(21)
 
                         },
                         query = GraphQLQueries.PlaceLimboBet
                         //query = "mutation LimboBet($amount: Float!, $multiplierTarget: Float!, $currency: CurrencyEnum!, $identifier: String!) {\n limboBet(\n amount: $amount\n currency: $currency\n multiplierTarget: $multiplierTarget\n identifier: $identifier\n  ) {\n...CasinoBet\n state {\n...CasinoGameLimbo\n    }\n  }\n}\n\nfragment CasinoBet on CasinoBet {\n id\n active\n payoutMultiplier\n amountMultiplier\n amount\n payout\n updatedAt\n currency\n game\n user {\n id\n name\n  }\n}\n\nfragment CasinoGameLimbo on CasinoGameLimbo {\n result\n multiplierTarget\n}\n"
                     };
 
-                    CreateOrUseDefaultRestClient();
-
-                    var request = CreateDefaultRestRequest(token);
-
-                    request.AddJsonBody(payload);
-
-                    var restResponse = await SharedRestClient.ExecuteAsync(request);
+                    var restResponse = await APIClientManager.PlaceLimboBet(payload);
 
                     button1.Enabled = true;
+
                     Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
 
                     if (response.errors != null)
                     {
                         luaPrint(String.Format("{0}:{1}", response.errors[0].errorType, response.errors[0].message));
-
                         if (running == true)
                         {
                             await Task.Delay(2000);
-
                         }
                         else
                         {
                             running = false;
-                            bSta();
+                            DoStop();
                         }
                     }
                     else
                     {
 
-                        //await CheckBalance();
-
                         TimerFunc(beginMs);
-
 
                         //refresh balance
 
                         if (response.data.limboBet.user.balances != null)
                         {
-                            // RefreshBalances(response.data.limboBet.user.balances);
                             authorizeControl1.SyncCurrencies(response.data.limboBet.user.balances);
-                            ;
                         }
 
-                        //(new System.Collections.Generic.Mscorlib_CollectionDebugView<Limbo.Balances>(response.data.limboBet.user.balances).Items[0]).available
                         currentWager += response.data.limboBet.amount;
 
                         if (response.data.limboBet.payoutMultiplier > 0)
@@ -933,7 +908,6 @@ end";
                         }
 
                         Log(response);
-                        //CheckBalance();
 
                         decimal profitCurr = response.data.limboBet.payout - response.data.limboBet.amount;
                         currentProfit += response.data.limboBet.payout - response.data.limboBet.amount;
@@ -943,7 +917,6 @@ end";
 
                         last.target = response.data.limboBet.state.multiplierTarget;
                         last.result = response.data.limboBet.state.result;
-
 
                         highestStreak.Add(winstreak);
                         highestStreak = new List<int> { highestStreak.Max() };
@@ -995,9 +968,11 @@ end";
                             luaPrint("Lua ERROR!!");
                             luaPrint(ex.Message);
                             running = false;
-                            bSta();
+                            DoStop();
                         }
+
                         GetLuaVariables();
+
                     }
                 }
             }
@@ -1013,19 +988,7 @@ end";
             try
             {
 
-                BetQuery payload = new BetQuery
-                {
-                    operationName = "UserBalances",
-                    query = "query UserBalances {\n  user {\n    id\n    balances {\n      available {\n        amount\n        currency\n        __typename\n      }\n      vault {\n        amount\n        currency\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
-                };
-
-                CreateOrUseDefaultRestClient();
-
-                var request = CreateDefaultRestRequest(token);
-
-                request.AddJsonBody(payload);
-
-                var restResponse = await SharedRestClient.ExecuteAsync(request);
+                var restResponse = await APIClientManager.CheckBalance();
 
                 BalancesData response = JsonConvert.DeserializeObject<BalancesData>(restResponse.Content);
 
@@ -1046,21 +1009,10 @@ end";
                                 balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
                                 break;
                             }
-
-                            //if (true)
-                            //{
-                            //    for (int s = 0; s < currenciesAvailable.Length; s++)
-                            //    {
-                            //        if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
-                            //        {
-                            //            currencySelector.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
-                            //            break;
-                            //        }
-                            //    }
-                            //}
                         }
 
                         authorizeControl1.SyncCurrencies(response.data.user.balances);
+
                     }
                 }
             }
@@ -1097,6 +1049,7 @@ end";
         //    btnCheckBalance.Enabled = true;
         //}
 
+        /*
         public string RandomString(int length)
         {
             Random random = new Random();
@@ -1104,6 +1057,8 @@ end";
             return new string(Enumerable.Repeat(chars, length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+        */
+
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
             //Properties.Settings.Default.textCode = richTextBox1.Text;
@@ -1167,7 +1122,7 @@ end";
                 luaPrint("Lua ERROR!!");
                 luaPrint(ex.Message);
                 running = false;
-                bSta();
+                DoStop();
             }
         }
 
@@ -1175,7 +1130,6 @@ end";
 
         private void listView1_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
-            //
             ListViewItem item = e.Item as ListViewItem;
             if (e.Item.Checked == true)
             {
@@ -1190,48 +1144,18 @@ end";
                 CommandButton2_Click(this, new EventArgs());
             }
         }
-        private async Task VaultSend(decimal sentamount)
+
+
+
+        private async Task VaultSend(decimal amount)
         {
             try
             {
-                //var mainurl = "https://api." + StakeSite + "/graphql";
-                //var request = new RestRequest(Method.POST);
-                //var client = new RestClient(mainurl);
 
-                BetQuery payload = new BetQuery
-                {
-                    operationName = "CreateVaultDeposit",
-                    variables = new BetClass()
-                    {
-                        currency = currencySelected.ToLower(),
-                        amount = sentamount
-                    },
-                    query = "mutation CreateVaultDeposit($currency: CurrencyEnum!, $amount: Float!) {\n  createVaultDeposit(currency: $currency, amount: $amount) {\n    id\n    amount\n    currency\n    user {\n      id\n      balances {\n        available {\n          amount\n          currency\n          __typename\n        }\n        vault {\n          amount\n          currency\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
-                };
+                var restResponse = await APIClientManager.SendToVault(currencySelected, amount);
 
-                //request.AddHeader("Content-Type", "application/json");
-                //request.AddHeader("x-access-token", token);
-
-                //request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
-                //request.AddJsonBody(payload);
-                //IRestResponse response = client.Execute(request);
-
-                //var restResponse =
-                //    await client.ExecuteAsync(request);
-
-
-                CreateOrUseDefaultRestClient();
-
-                var request = CreateDefaultRestRequest(token);
-
-                request.AddJsonBody(payload);
-
-                var restResponse = await SharedRestClient.ExecuteAsync(request);
-
-                // Will output the HTML contents of the requested page
-                //Debug.WriteLine(restResponse.Content);
                 Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
-                //System.Diagnostics.Debug.WriteLine(restResponse.Content);
+
                 if (response.errors != null)
                 {
                     luaPrint(response.errors[0].errorType + ":" + response.errors[0].message);
@@ -1240,9 +1164,8 @@ end";
                 {
                     if (response.data != null)
                     {
-                        luaPrint(string.Format("Deposited to vault: {0} {1}", sentamount.ToString("0.00000000"), currencySelected));
+                        luaPrint(string.Format("Deposited to vault: {0} {1}", amount.ToString("0.00000000"), currencySelected));
                     }
-
                 }
             }
             catch (Exception ex)
@@ -1251,6 +1174,67 @@ end";
             }
         }
 
+        //private async Task VaultSend(decimal sentamount)
+        //{
+        //    try
+        //    {
+        //        //var mainurl = "https://api." + StakeSite + "/graphql";
+        //        //var request = new RestRequest(Method.POST);
+        //        //var client = new RestClient(mainurl);
+
+        //        BetQuery payload = new BetQuery
+        //        {
+        //            operationName = "CreateVaultDeposit",
+        //            variables = new BetClass()
+        //            {
+        //                currency = currencySelected.ToLower(),
+        //                amount = sentamount
+        //            },
+        //            query = "mutation CreateVaultDeposit($currency: CurrencyEnum!, $amount: Float!) {\n  createVaultDeposit(currency: $currency, amount: $amount) {\n    id\n    amount\n    currency\n    user {\n      id\n      balances {\n        available {\n          amount\n          currency\n          __typename\n        }\n        vault {\n          amount\n          currency\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
+        //        };
+
+        //        //request.AddHeader("Content-Type", "application/json");
+        //        //request.AddHeader("x-access-token", token);
+
+        //        //request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
+        //        //request.AddJsonBody(payload);
+        //        //IRestResponse response = client.Execute(request);
+
+        //        //var restResponse =
+        //        //    await client.ExecuteAsync(request);
+
+
+        //        CreateOrUseDefaultRestClient();
+
+        //        var request = CreateDefaultRestRequest(token);
+
+        //        request.AddJsonBody(payload);
+
+        //        var restResponse = await SharedRestClient.ExecuteAsync(request);
+
+        //        // Will output the HTML contents of the requested page
+        //        //Debug.WriteLine(restResponse.Content);
+        //        Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
+        //        //System.Diagnostics.Debug.WriteLine(restResponse.Content);
+        //        if (response.errors != null)
+        //        {
+        //            luaPrint(response.errors[0].errorType + ":" + response.errors[0].message);
+        //        }
+        //        else
+        //        {
+        //            if (response.data != null)
+        //            {
+        //                luaPrint(string.Format("Deposited to vault: {0} {1}", sentamount.ToString("0.00000000"), currencySelected));
+        //            }
+
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //luaPrint(ex.Message);
+        //    }
+        //}
+
         private async Task ResetSeeds()
         {
             try
@@ -1258,17 +1242,17 @@ end";
                 // var mainurl = "https://api." + StakeSite + "/graphql";
                 // var request = new RestRequest(Method.POST);
                 // var client = new RestClient(mainurl);
-
+                /*
                 BetQuery payload = new BetQuery
                 {
                     operationName = "RotateSeedPair",
                     variables = new BetClass()
                     {
-                        seed = RandomString(10)
+                        seed = Utils.RandomString(10)
                     },
                     query = "mutation RotateSeedPair($seed: String!) {\n  rotateSeedPair(seed: $seed) {\n    clientSeed {\n      user {\n        id\n        activeClientSeed {\n          id\n          seed\n          __typename\n        }\n        activeServerSeed {\n          id\n          nonce\n          seedHash\n          nextSeedHash\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
                 };
-
+                */
                 //  request.AddHeader("Content-Type", "application/json");
                 //  request.AddHeader("x-access-token", token);
 
@@ -1279,7 +1263,7 @@ end";
                 //  var restResponse =
                 //      await client.ExecuteAsync(request);
 
-
+                /*
                 CreateOrUseDefaultRestClient();
 
                 var request = CreateDefaultRestRequest(token);
@@ -1287,11 +1271,12 @@ end";
                 request.AddJsonBody(payload);
 
                 var restResponse = await SharedRestClient.ExecuteAsync(request);
+                */
 
-                // Will output the HTML contents of the requested page
-                //Debug.WriteLine(restResponse.Content);
+                var restResponse = await APIClientManager.ResetSeeds();
+
                 Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
-                //System.Diagnostics.Debug.WriteLine(restResponse.Content);
+
                 if (response.errors != null)
                 {
                     luaPrint(response.errors[0].errorType + ":" + response.errors[0].message);
@@ -1319,17 +1304,17 @@ end";
                 // var mainurl = "https://api." + StakeSite + "/graphql";
                 // var request = new RestRequest(Method.POST);
                 // var client = new RestClient(mainurl);
-
+                /*
                 BetQuery payload = new BetQuery
                 {
                     operationName = "RotateSeedPair",
                     variables = new BetClass()
                     {
-                        seed = RandomString(10)
+                        seed = Utils.RandomString(10)
                     },
                     query = "mutation RotateSeedPair($seed: String!) {\n  rotateSeedPair(seed: $seed) {\n    clientSeed {\n      user {\n        id\n        activeClientSeed {\n          id\n          seed\n          __typename\n        }\n        activeServerSeed {\n          id\n          nonce\n          seedHash\n          nextSeedHash\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
                 };
-
+                */
                 // request.AddHeader("Content-Type", "application/json");
                 // request.AddHeader("x-access-token", token);
 
@@ -1339,7 +1324,7 @@ end";
 
                 // var restResponse =
                 //     await client.ExecuteAsync(request);
-
+                /*
                 CreateOrUseDefaultRestClient();
 
                 var request = CreateDefaultRestRequest(token);
@@ -1347,12 +1332,11 @@ end";
                 request.AddJsonBody(payload);
 
                 var restResponse = await SharedRestClient.ExecuteAsync(request);
+                */
+                var restResponse = await APIClientManager.SendTip();
 
-
-                // Will output the HTML contents of the requested page
-                //Debug.WriteLine(restResponse.Content);
                 Data response = JsonConvert.DeserializeObject<Data>(restResponse.Content);
-                //System.Diagnostics.Debug.WriteLine(restResponse.Content);
+
                 if (response.errors != null)
                 {
                     luaPrint(response.errors[0].errorType + ":" + response.errors[0].message);
@@ -1364,7 +1348,6 @@ end";
                         luaPrint("Not functional.");
 
                     }
-
                 }
             }
             catch (Exception ex)
@@ -1373,57 +1356,119 @@ end";
             }
         }
 
+        //public async Task<bool> Authorize()
+        //{
+        //    try
+        //    {
+        //        //var mainurl = "https://api." + StakeSite + "/graphql";
+        //        //var request = new RestRequest(Method.POST);
+        //        //var client = new RestClient(mainurl);
+
+        //        BetQuery payload = new BetQuery
+        //        {
+        //            operationName = "initialUserRequest",
+        //            //variables = new BetClass() { },
+        //            query = "query initialUserRequest {\n  user {\n    ...UserAuth\n    __typename\n  }\n}\n\nfragment UserAuth on User {\n  id\n  name\n  email\n  hasPhoneNumberVerified\n  hasEmailVerified\n  hasPassword\n  intercomHash\n  createdAt\n  hasTfaEnabled\n  mixpanelId\n  hasOauth\n  isKycBasicRequired\n  isKycExtendedRequired\n  isKycFullRequired\n  kycBasic {\n    id\n    status\n    __typename\n  }\n  kycExtended {\n    id\n    status\n    __typename\n  }\n  kycFull {\n    id\n    status\n    __typename\n  }\n  flags {\n    flag\n    __typename\n  }\n  roles {\n    name\n    __typename\n  }\n  balances {\n    ...UserBalanceFragment\n    __typename\n  }\n  activeClientSeed {\n    id\n    seed\n    __typename\n  }\n  previousServerSeed {\n    id\n    seed\n    __typename\n  }\n  activeServerSeed {\n    id\n    seedHash\n    nextSeedHash\n    nonce\n    blocked\n    __typename\n  }\n  __typename\n}\n\nfragment UserBalanceFragment on UserBalance {\n  available {\n    amount\n    currency\n    __typename\n  }\n  vault {\n    amount\n    currency\n    __typename\n  }\n  __typename\n}\n"
+        //        };
+
+        //        //request.AddHeader("Content-Type", "application/json");
+        //        //request.AddHeader("x-access-token", token);
+        //        //request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
+        //        //request.AddJsonBody(payload);
+        //        //IRestResponse response = client.Execute(request);
+        //        //var restResponse =
+        //        //    await client.ExecuteAsync(request);
+
+
+        //        CreateOrUseDefaultRestClient(true);
+
+        //        var request = CreateDefaultRestRequest(token);
+
+        //        request.AddJsonBody(payload);
+
+        //        var restResponse = await SharedRestClient.ExecuteAsync(request);
+
+        //        // Will output the HTML contents of the requested page
+        //        //Debug.WriteLine(restResponse.Content);
+        //        ActiveData response = JsonConvert.DeserializeObject<ActiveData>(restResponse.Content);
+        //        //System.Diagnostics.Debug.WriteLine(restResponse.Content);
+        //        if (response == null || response.errors != null)
+        //        {
+        //            toolStripStatusLabel1.Text = "Unauthorized";
+        //            is_connected = false;
+        //        }
+        //        else
+        //        {
+        //            if (response.data != null)
+        //            {
+        //                is_connected = true;
+        //                toolStripStatusLabel1.Text = String.Format("Authorized.");
+
+        //                //apiKeyInput.Enabled = false;
+
+        //                authorizeControl1.IsConnected = true;
+
+        //                for (var i = 0; i < response.data.user.balances.Count; i++)
+        //                {
+        //                    if (response.data.user.balances[i].available.currency == currencySelected.ToLower())
+        //                    {
+        //                        currentBal = response.data.user.balances[i].available.amount;
+        //                        balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
+        //                        break;
+        //                    }
+
+        //                    //currencySelect.Items.Clear();
+        //                    /*
+        //                    if (true)
+        //                    {
+        //                        for (int s = 0; s < currenciesAvailable.Length; s++)
+        //                        {
+        //                            if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
+        //                            {
+        //                                currencySelector.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
+        //                                //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
+        //                                break;
+        //                            }
+        //                        }
+        //                    }
+        //                    */
+
+        //                }
+
+        //                authorizeControl1.SyncCurrencies(response.data.user.balances);
+
+        //            }
+
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //luaPrint(ex.Message);
+        //    }
+
+        //    return true;
+        //}
         public async Task<bool> Authorize()
         {
             try
             {
-                //var mainurl = "https://api." + StakeSite + "/graphql";
-                //var request = new RestRequest(Method.POST);
-                //var client = new RestClient(mainurl);
 
-                BetQuery payload = new BetQuery
-                {
-                    operationName = "initialUserRequest",
-                    //variables = new BetClass() { },
-                    query = "query initialUserRequest {\n  user {\n    ...UserAuth\n    __typename\n  }\n}\n\nfragment UserAuth on User {\n  id\n  name\n  email\n  hasPhoneNumberVerified\n  hasEmailVerified\n  hasPassword\n  intercomHash\n  createdAt\n  hasTfaEnabled\n  mixpanelId\n  hasOauth\n  isKycBasicRequired\n  isKycExtendedRequired\n  isKycFullRequired\n  kycBasic {\n    id\n    status\n    __typename\n  }\n  kycExtended {\n    id\n    status\n    __typename\n  }\n  kycFull {\n    id\n    status\n    __typename\n  }\n  flags {\n    flag\n    __typename\n  }\n  roles {\n    name\n    __typename\n  }\n  balances {\n    ...UserBalanceFragment\n    __typename\n  }\n  activeClientSeed {\n    id\n    seed\n    __typename\n  }\n  previousServerSeed {\n    id\n    seed\n    __typename\n  }\n  activeServerSeed {\n    id\n    seedHash\n    nextSeedHash\n    nonce\n    blocked\n    __typename\n  }\n  __typename\n}\n\nfragment UserBalanceFragment on UserBalance {\n  available {\n    amount\n    currency\n    __typename\n  }\n  vault {\n    amount\n    currency\n    __typename\n  }\n  __typename\n}\n"
-                };
+                var restResponse = await APIClientManager.Authorize();
 
-                //request.AddHeader("Content-Type", "application/json");
-                //request.AddHeader("x-access-token", token);
-                //request.AddParameter("application/json", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
-                //request.AddJsonBody(payload);
-                //IRestResponse response = client.Execute(request);
-                //var restResponse =
-                //    await client.ExecuteAsync(request);
-
-
-                CreateOrUseDefaultRestClient(true);
-
-                var request = CreateDefaultRestRequest(token);
-
-                request.AddJsonBody(payload);
-
-                var restResponse = await SharedRestClient.ExecuteAsync(request);
-
-                // Will output the HTML contents of the requested page
-                //Debug.WriteLine(restResponse.Content);
                 ActiveData response = JsonConvert.DeserializeObject<ActiveData>(restResponse.Content);
-                //System.Diagnostics.Debug.WriteLine(restResponse.Content);
-                if (response == null || response.errors != null)
+
+                if (response.errors != null)
                 {
-                    toolStripStatusLabel1.Text = "Unauthorized";
-                    is_connected = false;
+                    toolStripStatusLabel1.Text = "Disconnected";
                 }
                 else
                 {
                     if (response.data != null)
                     {
-                        is_connected = true;
-                        toolStripStatusLabel1.Text = String.Format("Authorized.");
+                        toolStripStatusLabel1.Text = String.Format("Connected");
 
-                        //apiKeyInput.Enabled = false;
-
-                        authorizeControl1.IsConnected = true;
+                        //textBox1.Enabled = false;
+                        authorizeControl1.CanChangeAuthorization(false);
 
                         for (var i = 0; i < response.data.user.balances.Count; i++)
                         {
@@ -1431,25 +1476,7 @@ end";
                             {
                                 currentBal = response.data.user.balances[i].available.amount;
                                 balanceLabel.Text = String.Format("{0} {1}", currentBal.ToString("0.00000000"), currencySelected);
-                                break;
                             }
-
-                            //currencySelect.Items.Clear();
-                            /*
-                            if (true)
-                            {
-                                for (int s = 0; s < currenciesAvailable.Length; s++)
-                                {
-                                    if (response.data.user.balances[i].available.currency == currenciesAvailable[s].ToLower())
-                                    {
-                                        currencySelector.Items[s] = string.Format("{0} {1}", currenciesAvailable[s], response.data.user.balances[i].available.amount.ToString("0.00000000"));
-                                        //currencySelect.Items.Add(string.Format("{0} {1}", s, response.data.user.balances[i].available.amount.ToString("0.00000000")));
-                                        break;
-                                    }
-                                }
-                            }
-                            */
-
                         }
 
                         authorizeControl1.SyncCurrencies(response.data.user.balances);
@@ -1570,7 +1597,7 @@ end";
 
                 //SetStatistics();
                 string box = String.Format("[{0}] {4}x  |  {1}   |  bet: {5}  |  profit:  {2}   [{3}]", nonce - 1, result.ToString("0.0000"), currentProfit.ToString("0.00000000"), winStatus, target.ToString("0.00"), amount.ToString("0.00000000"));
-                
+
                 listBox3.Items.Insert(0, box);
 
                 if (listBox3.Items.Count > 200)
