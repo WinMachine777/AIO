@@ -368,9 +368,7 @@ end";
 
         private void Application_ApplicationExit(object sender, EventArgs e)
         {
-
-            //Properties.Settings.Default.Save();
-
+            Properties.Settings.Default.Save();
         }
 
         private void RegisterLua()
@@ -427,9 +425,6 @@ end";
                 DoStop();
                 luaPrint("Please set 'nextbet = x' and 'target = x' variable on top of script.");
             }
-
-
-
         }
 
         public void DoStop()
